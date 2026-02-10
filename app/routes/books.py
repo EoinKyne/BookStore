@@ -18,7 +18,7 @@ def get_books():
 def get_book(book_id: int):
     for book in books_db:
         if book["id"] == book_id:
-            return Book
+            return book
     raise HTTPException(status_code=404, detail="Book not found")
 
 

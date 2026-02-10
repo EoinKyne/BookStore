@@ -6,3 +6,4 @@ class CreateBook(BaseModel):
     author: str
     price: float
     stock: int
+
