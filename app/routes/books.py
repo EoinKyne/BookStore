@@ -31,3 +31,9 @@ def create_book(book: CreateBook):
     books_db.append(new_book)
     return new_book
 
+
+@router.post("/_reset", include_in_schema=False)
+def reset_books():
+    global books_db, book_id
+    books_db = []
+    book_id = 1
