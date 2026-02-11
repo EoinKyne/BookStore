@@ -34,3 +34,25 @@ def create_book(book: CreateBook, db: Session = Depends(get_db)):
 def reset_books(db: Session = Depends(get_db)):
     db.query(BookModel).delete()
     db.commit()
+
+
+@router.put("/{book_id}", response_model=Book)
+def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_db)):
+    book = db.query(BookModel).filter(BookModel.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    for field, value in book_data.dict().items():
+        setattr(book, field, value)
+    db.commit()
+    db.refresh(book)
+    return book
+
+
+@router.delete("/{book_id}", status_code=204)
+def delete_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(BookModel).filter(BookModel.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    db.delete(book)
+    db.commit()
+
