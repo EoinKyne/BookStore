@@ -36,7 +36,7 @@ def test_get_book(api_request):
 
     response = api_request.get(f"/books/{book_id}")
     print(response)
-    #assert response.status == 200
-    #body = response.json()
-    #assert body["id"] == book_id
-    #assert body["title"] == "How to catch sharks"
+    assert response.status == 200
+    body = response.json()
+    assert body["id"] == book_id
+    assert body["title"] == "How to catch sharks"

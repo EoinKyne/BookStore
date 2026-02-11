@@ -1,33 +1,30 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from BookStore.app.schemas.book import Book
 from BookStore.app.schemas.create_book import CreateBook
-from typing import List
+from sqlalchemy.orm import Session
+from BookStore.app.dependencies.db_dependencies import get_db
 
 router = APIRouter()
 
-books_db = []
-book_id = 1
-
 
 @router.get("/", response_model=list[Book])
-def get_books():
-    return books_db
+def get_books(db: Session = Depends(get_db)):
+    return db.query(Book).all()
 
 
 @router.get("/{book_id}", response_model=Book)
-def get_book(book_id: int):
-    for book in books_db:
-        if book["id"] == book_id:
-            return book
-    raise HTTPException(status_code=404, detail="Book not found")
+def get_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book
 
 
 @router.post("/", response_model=Book)
-def create_book(book: CreateBook):
-    global book_id
-    new_book = book.dict()
-    new_book["id"] = book_id
-    book_id += 1
-    books_db.append(new_book)
-    return new_book
+def create_book(book: CreateBook, db: Session = Depends(get_db)):
+    db_book = Book(**book.dict())
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+    return db_book
 
