@@ -44,6 +44,11 @@ def start_fastapi():
     process.wait()
 
 
+@pytest.fixture(autouse=True)
+def reset_data(api_request):
+    api_request.post("/books/_reset")
+
+
 @pytest.fixture
 def api_request(playwright) -> APIRequestContext:
     request_context = playwright.request.new_context(

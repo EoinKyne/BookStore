@@ -19,6 +19,13 @@ def test_create_book(api_request):
 
 
 def test_get_books(api_request):
+    create_response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
+
     response = api_request.get("/books")
     assert response.status == 200
     assert isinstance(response.json(), list)
@@ -32,11 +39,35 @@ def test_get_book(api_request):
             "price": 14.99,
             "stock": 9})
     book_id = create_response.json()["id"]
-    print(book_id)
 
     response = api_request.get(f"/books/{book_id}")
-    print(response)
     assert response.status == 200
     body = response.json()
     assert body["id"] == book_id
     assert body["title"] == "How to catch sharks"
+
+
+def test_get_book_not_found(api_request):
+    response = api_request.get(f"/books/99")
+    assert response.status == 404
+    assert response.json()["detail"] == "Book not found"
+
+
+def test_get_book_invalid_price(api_request):
+    response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": -14.99,
+              "stock": 9})
+    assert response.status == 422
+
+
+def test_create_book_with_incomplete_details(api_request):
+    response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "price": 14.99
+              })
+    assert response.status == 422
+
