@@ -13,7 +13,7 @@ from BookStore.app.main import app
 BASE_URL = "http://127.0.0.1:8000"
 
 TEST_ENGINE = create_engine(
-    "sqlite:///.testbookstore.db",
+    "sqlite:///./testbookstore.db",
     connect_args={"check_same_thread": False}
 )
 
@@ -72,11 +72,6 @@ def start_fastapi():
     process.wait()
 
 
-@pytest.fixture(autouse=True)
-def reset_data(api_request):
-    api_request.post("/books/_reset")
-
-
 @pytest.fixture
 def api_request(playwright) -> APIRequestContext:
     request_context = playwright.request.new_context(
@@ -85,6 +80,20 @@ def api_request(playwright) -> APIRequestContext:
     yield request_context
     request_context.dispose()
 
+
+@pytest.fixture(autouse=True)
+def db_transaction():
+    connection = TEST_ENGINE.connect()
+    db_transaction = connection.begin()
+
+    session = TestingSessionLocal(bind=connection)
+    app.dependency_overrides[get_db] = lambda: session
+
+    yield
+
+    session.close()
+    db_transaction.rollback()
+    connection.close()
 
 
 

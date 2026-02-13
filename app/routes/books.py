@@ -30,12 +30,6 @@ def create_book(book: CreateBook, db: Session = Depends(get_db)):
     return db_book
 
 
-@router.post("/_reset", include_in_schema=False)
-def reset_books(db: Session = Depends(get_db)):
-    db.query(BookModel).delete()
-    db.commit()
-
-
 @router.put("/{book_id}", response_model=Book)
 def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_db)):
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
