@@ -71,3 +71,41 @@ def test_create_book_with_incomplete_details(api_request):
               })
     assert response.status == 422
 
+
+def test_update_book_with_new_details(api_request):
+    create_response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
+    book_id = create_response.json()["id"]
+
+    response = api_request.put(
+        f"/books/{book_id}",
+        data={"title": "How to catch sharks the prequel",
+              "author": "Robert Shaw",
+              "price": 17.99,
+              "stock": 6}
+    )
+
+    assert response.status == 200
+    body = response.json()
+    assert body["title"] == "How to catch sharks the prequel"
+    assert body["author"] == "Robert Shaw"
+    assert body["price"] == 17.99
+    assert body["stock"] == 6
+
+
+def test_delete_of_book(api_request):
+    create_response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
+    book_id = create_response.json()["id"]
+
+    response = api_request.delete(f"/books/{book_id}")
+    assert response.status == 204
+
