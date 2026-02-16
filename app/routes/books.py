@@ -1,17 +1,27 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from BookStore.app.schemas.book import Book
-from BookStore.app.schemas.create_book import CreateBook
 from sqlalchemy.orm import Session
 from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.models.model import Book as BookModel
+from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
+
 
 router = APIRouter()
 
 
 @router.get("/", response_model=list[Book])
-def get_books(db: Session = Depends(get_db)):
-    return db.query(BookModel).all()
+def get_books(db: Session = Depends(get_db),
+              limit: int = Query(10, ge=1, le=100),
+              offset: int = Query(0, ge=0),
+              author: str | None = None):
+
+    books = db.query(BookModel).order_by(BookModel.id.desc())
+
+    if author:
+        books = books.filter(BookModel.author.ilike(f"%{author}%"))
+
+    return books.offset(offset).limit(limit).all()
 
 
 @router.get("/{book_id}", response_model=Book)
