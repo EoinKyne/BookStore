@@ -4,6 +4,7 @@ from BookStore.app.schemas.create_book import CreateBook
 from sqlalchemy.orm import Session
 from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.models.model import Book as BookModel
+from BookStore.app.schemas.patch_book import PatchBook
 
 router = APIRouter()
 
@@ -50,3 +51,22 @@ def delete_book(book_id: int, db: Session = Depends(get_db)):
     db.delete(book)
     db.commit()
 
+
+@router.patch("/{book_id}", response_model=Book)
+def patch_book(
+        book_id: int,
+        data: PatchBook,
+        db: Session = Depends(get_db),
+):
+    book = db.query(BookModel).filter(BookModel.id == book_id).first()
+    if not Book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    updates = data.dict(exclude_unset=True)
+
+    for field, value in updates.items():
+        setattr(book, field, value)
+
+    db.commit()
+    db.refresh(book)
+    return book
