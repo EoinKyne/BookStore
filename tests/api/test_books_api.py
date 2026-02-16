@@ -109,3 +109,50 @@ def test_delete_of_book(api_request):
     response = api_request.delete(f"/books/{book_id}")
     assert response.status == 204
 
+
+def test_update_of_book_title_author(api_request):
+    create_response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
+
+    book_id = create_response.json()["id"]
+
+    response = api_request.patch(
+        f"/books/{book_id}",
+        data={"title": "How to catch sharks the prequel",
+              "author": "Robert Shaw III"}
+    )
+
+    assert response.status == 200
+    body = response.json()
+    assert body["title"] == "How to catch sharks the prequel"
+    assert body["author"] == "Robert Shaw III"
+    assert body["price"] == 14.99
+    assert body["stock"] == 9
+
+
+def test_update_of_book_prices_stock(api_request):
+    create_response = api_request.post(
+        "books",
+        data={"title": "How to catch sharks",
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
+
+    book_id = create_response.json()["id"]
+
+    response = api_request.patch(
+        f"/books/{book_id}",
+        data={"price": 18.99,
+              "stock": 19}
+    )
+
+    assert response.status == 200
+    body = response.json()
+    assert body["title"] == "How to catch sharks"
+    assert body["author"] == "Robert Shaw"
+    assert body["price"] == 18.99
+    assert body["stock"] == 19
