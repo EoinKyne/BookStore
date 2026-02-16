@@ -11,7 +11,10 @@ class CreateBook(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "price": 12.99
+                    "title": "Book Title",
+                    "author": "Book Author",
+                    "price": 12.99,
+                    "stock": 1
                 }
             ]
         }
