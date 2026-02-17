@@ -74,8 +74,24 @@ def start_fastapi():
 
 @pytest.fixture
 def api_request(playwright) -> APIRequestContext:
+    request = playwright.request.new_context(base_url=BASE_URL)
+
+    login = request.post(
+        "/auth/login/form",
+        data={
+            "username": "admin",
+            "password": "admin123",
+        },
+    )
+    print(login.json())
+
+    token = login.json()["access_token"]
+    print(token)
     request_context = playwright.request.new_context(
-        base_url=BASE_URL
+        base_url=BASE_URL,
+        extra_http_headers={
+            "Authorization": f"Bearer {token}"
+        },
     )
     yield request_context
     request_context.dispose()

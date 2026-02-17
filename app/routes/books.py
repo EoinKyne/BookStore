@@ -5,6 +5,8 @@ from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.models.model import Book as BookModel
 from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
+from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2, get_current_user_bearer
+from BookStore.app.models.user_model import User
 
 
 router = APIRouter()
@@ -33,7 +35,8 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=Book)
-def create_book(book: CreateBook, db: Session = Depends(get_db)):
+def create_book(book: CreateBook, db: Session = Depends(get_db), user: User = Depends(get_current_user_oauth2)):
+    print(f"Book created by {user.username} (oauth2)")
     db_book = BookModel(**book.dict())
     db.add(db_book)
     db.commit()
