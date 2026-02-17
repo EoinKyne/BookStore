@@ -1,5 +1,5 @@
 from BookStore.app.routes import books
-from BookStore.app.routes import auth
+from BookStore.app.routes import auth_routes
 import logging
 from BookStore.app.core.logging_config import setup_logging
 from contextlib import asynccontextmanager
@@ -16,10 +16,11 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Bookstore Application")
     yield
     logger.info("Application shutting down")
+
+
 app = FastAPI(title="Bookstore", lifespan=lifespan)
 app.include_router(books.router, prefix="/books", tags=["Books"])
-
-app.include_router(auth.router)
+app.include_router(auth_routes.router)
 
 
 

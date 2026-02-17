@@ -41,7 +41,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="session", autouse=True)
 def start_fastapi():
-    logger.info("starting testing")
+    logger.debug("Start test")
     process = subprocess.Popen(
         [
             sys.executable,
@@ -78,19 +78,17 @@ def start_fastapi():
 
 @pytest.fixture
 def api_request(playwright) -> APIRequestContext:
+    logger.debug("Execute API Request")
     request = playwright.request.new_context(base_url=BASE_URL)
 
     login = request.post(
         "/auth/login/form",
-        data={
+        form={
             "username": "admin",
             "password": "admin123",
         },
     )
-    print(login.json())
-
     token = login.json()["access_token"]
-    print(token)
     request_context = playwright.request.new_context(
         base_url=BASE_URL,
         extra_http_headers={
@@ -103,6 +101,7 @@ def api_request(playwright) -> APIRequestContext:
 
 @pytest.fixture(autouse=True)
 def db_transaction():
+    logger.debug("Rollback db after test")
     connection = TEST_ENGINE.connect()
     db_transaction = connection.begin()
 
