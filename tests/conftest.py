@@ -9,6 +9,9 @@ from sqlalchemy.orm import sessionmaker
 from BookStore.app.database.database import Base
 from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.main import app
+import logging
+
+logger = logging.getLogger(__name__)
 
 BASE_URL = "http://127.0.0.1:8000"
 
@@ -38,6 +41,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="session", autouse=True)
 def start_fastapi():
+    logger.info("starting testing")
     process = subprocess.Popen(
         [
             sys.executable,

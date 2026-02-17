@@ -5,8 +5,9 @@ from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.models.model import Book as BookModel
 from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
+import logging
 
-
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -15,6 +16,7 @@ def get_books(db: Session = Depends(get_db),
               limit: int = Query(10, ge=1, le=100),
               offset: int = Query(0, ge=0),
               author: str | None = None):
+    logger.info("Get books...")
 
     books = db.query(BookModel).order_by(BookModel.id.desc())
 
@@ -26,6 +28,7 @@ def get_books(db: Session = Depends(get_db),
 
 @router.get("/{book_id}", response_model=Book)
 def get_book(book_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Get books by id {book_id}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -34,6 +37,7 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=Book)
 def create_book(book: CreateBook, db: Session = Depends(get_db)):
+    logger.info(f"Adding new book... {book}")
     db_book = BookModel(**book.dict())
     db.add(db_book)
     db.commit()
@@ -43,6 +47,7 @@ def create_book(book: CreateBook, db: Session = Depends(get_db)):
 
 @router.put("/{book_id}", response_model=Book)
 def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_db)):
+    logger.info(f"Updating all book details... {book_data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -55,6 +60,7 @@ def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_d
 
 @router.delete("/{book_id}", status_code=204)
 def delete_book(book_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Deleting book id {book_id}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -68,6 +74,7 @@ def patch_book(
         data: PatchBook,
         db: Session = Depends(get_db),
 ):
+    logger.info(f"Updating book for details {data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not Book:
         raise HTTPException(status_code=404, detail="Book not found")
