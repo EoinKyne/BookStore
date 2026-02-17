@@ -1,6 +1,11 @@
+import pytest
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def test_create_book(api_request):
+    logger.info("Test create book...")
     response = api_request.post(
         "/books",
         data={
@@ -18,6 +23,7 @@ def test_create_book(api_request):
 
 
 def test_get_books(api_request):
+    logger.info("Test get books")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -31,6 +37,7 @@ def test_get_books(api_request):
 
 
 def test_get_book(api_request):
+    logger.info("Test get book by id")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -47,12 +54,14 @@ def test_get_book(api_request):
 
 
 def test_get_book_not_found(api_request):
+    logger.info("Test book not foune")
     response = api_request.get(f"/books/99")
     assert response.status == 404
     assert response.json()["detail"] == "Book not found"
 
 
 def test_get_book_invalid_price(api_request):
+    logger.info("Test create book with invalid price ")
     response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -63,6 +72,7 @@ def test_get_book_invalid_price(api_request):
 
 
 def test_create_book_with_incomplete_details(api_request):
+    logger.info("Test create book with invalid details")
     response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -72,6 +82,7 @@ def test_create_book_with_incomplete_details(api_request):
 
 
 def test_update_book_with_new_details(api_request):
+    logger.debug("Test PUT update on book")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -97,6 +108,7 @@ def test_update_book_with_new_details(api_request):
 
 
 def test_delete_of_book(api_request):
+    logger.debug("Test delete book by id")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -110,6 +122,7 @@ def test_delete_of_book(api_request):
 
 
 def test_update_of_book_title_author(api_request):
+    logger.debug("Test PATCH of book details, author and title")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -134,6 +147,7 @@ def test_update_of_book_title_author(api_request):
 
 
 def test_update_of_book_prices_stock(api_request):
+    logger.debug("Test PATCH of book details, price and stock ")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
