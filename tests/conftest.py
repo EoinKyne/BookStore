@@ -77,7 +77,7 @@ def start_fastapi():
 
 
 @pytest.fixture
-def api_request(playwright) -> APIRequestContext:
+def api_request_authorized(playwright) -> APIRequestContext:
     logger.debug("Execute API Request")
     request = playwright.request.new_context(base_url=BASE_URL)
 
@@ -94,6 +94,18 @@ def api_request(playwright) -> APIRequestContext:
         extra_http_headers={
             "Authorization": f"Bearer {token}"
         },
+    )
+    yield request_context
+    request_context.dispose()
+
+
+@pytest.fixture
+def api_request_not_authorized(playwright) -> APIRequestContext:
+    logger.debug("Execute not authorized API Request")
+    request = playwright.request.new_context(base_url=BASE_URL)
+
+    request_context = playwright.request.new_context(
+        base_url=BASE_URL
     )
     yield request_context
     request_context.dispose()
