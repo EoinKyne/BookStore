@@ -31,7 +31,8 @@ def get_books(db: Session = Depends(get_db),
 
 
 @router.get("/{book_id}", response_model=Book)
-def get_book(book_id: int, db: Session = Depends(get_db)):
+def get_book(book_id: int,
+             db: Session = Depends(get_db)):
     logger.info(f"Get books by id {book_id}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
@@ -40,7 +41,9 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=Book)
-def create_book(book: CreateBook, db: Session = Depends(get_db), user: User = Depends(get_current_user_oauth2)):
+def create_book(book: CreateBook,
+                db: Session = Depends(get_db),
+                user: User = Depends(get_current_user_oauth2)):
     logger.info(f"Adding new book... {book}")
     db_book = BookModel(**book.dict())
     db.add(db_book)
@@ -50,7 +53,10 @@ def create_book(book: CreateBook, db: Session = Depends(get_db), user: User = De
 
 
 @router.put("/{book_id}", response_model=Book)
-def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_db)):
+def update_book(book_id: int,
+                book_data: CreateBook,
+                db: Session = Depends(get_db),
+                user: User = Depends(get_current_user_oauth2)):
     logger.info(f"Updating all book details... {book_data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
@@ -63,7 +69,9 @@ def update_book(book_id: int, book_data: CreateBook, db: Session = Depends(get_d
 
 
 @router.delete("/{book_id}", status_code=204)
-def delete_book(book_id: int, db: Session = Depends(get_db)):
+def delete_book(book_id: int,
+                db: Session = Depends(get_db),
+                user: User = Depends(get_current_user_oauth2)):
     logger.info(f"Deleting book id {book_id}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
@@ -77,6 +85,7 @@ def patch_book(
         book_id: int,
         data: PatchBook,
         db: Session = Depends(get_db),
+        user: User = Depends(get_current_user_oauth2)
 ):
     logger.info(f"Updating book for details {data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
