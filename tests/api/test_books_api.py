@@ -1,11 +1,10 @@
-import pytest
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 def test_create_book(api_request):
-    logger.info("Test create book...")
+    logger.debug("Test create book...")
     response = api_request.post(
         "/books",
         data={
@@ -23,7 +22,7 @@ def test_create_book(api_request):
 
 
 def test_get_books(api_request):
-    logger.info("Test get books")
+    logger.debug("Test get books")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -37,13 +36,13 @@ def test_get_books(api_request):
 
 
 def test_get_book(api_request):
-    logger.info("Test get book by id")
+    logger.debug("Test get book by id")
     create_response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
-            "author": "Robert Shaw",
-            "price": 14.99,
-            "stock": 9})
+              "author": "Robert Shaw",
+              "price": 14.99,
+              "stock": 9})
     book_id = create_response.json()["id"]
 
     response = api_request.get(f"/books/{book_id}")
@@ -54,14 +53,14 @@ def test_get_book(api_request):
 
 
 def test_get_book_not_found(api_request):
-    logger.info("Test book not foune")
+    logger.debug("Test book not foune")
     response = api_request.get(f"/books/99")
     assert response.status == 404
     assert response.json()["detail"] == "Book not found"
 
 
 def test_get_book_invalid_price(api_request):
-    logger.info("Test create book with invalid price ")
+    logger.debug("Test create book with invalid price ")
     response = api_request.post(
         "books",
         data={"title": "How to catch sharks",
@@ -72,7 +71,7 @@ def test_get_book_invalid_price(api_request):
 
 
 def test_create_book_with_incomplete_details(api_request):
-    logger.info("Test create book with invalid details")
+    logger.debug("Test create book with invalid details")
     response = api_request.post(
         "books",
         data={"title": "How to catch sharks",

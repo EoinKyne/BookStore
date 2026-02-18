@@ -5,7 +5,7 @@ DATABASE_URL = "sqlite:///./bookstore.db"
 TEST_DATABASE_URL = "sqlite:///./testbookstore.db"
 
 engine = create_engine(
-    DATABASE_URL,
+    TEST_DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
 
