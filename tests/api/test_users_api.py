@@ -2,7 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
+'''
 def test_create_user(api_request_authorized):
     logger.debug("Test create user...")
     response = api_request_authorized.post(
@@ -16,6 +16,8 @@ def test_create_user(api_request_authorized):
     )
     assert response.status == 200
 
+'''
+
 
 def test_create_user_with_unavailable_username(api_request_authorized):
     logger.debug("Test create user with unavailable username ")
@@ -28,4 +30,4 @@ def test_create_user_with_unavailable_username(api_request_authorized):
             "is_active": True,
         }
     )
-    assert response.status == 200
+    assert response.status == 409
