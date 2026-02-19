@@ -5,6 +5,8 @@ from BookStore.app.core.logging_config import setup_logging
 from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
 from fastapi import Request, FastAPI
+from BookStore.app.core.init_db import init_admin
+from BookStore.app.database.database import SessionLocal
 
 
 setup_logging()
@@ -14,6 +16,12 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting Bookstore Application")
+    db = SessionLocal()
+    logger.info(db)
+    try:
+        init_admin(db)
+    finally:
+        db.close()
     yield
     logger.info("Application shutting down")
 
@@ -21,7 +29,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Bookstore", lifespan=lifespan)
 app.include_router(books.router, prefix="/books", tags=["Books"])
 app.include_router(auth_routes.router)
-
 
 
 @app.exception_handler(Exception)

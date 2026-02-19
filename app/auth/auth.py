@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 SECRET_KEY = "dev-secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 password_hash = PasswordHash.recommended()
 

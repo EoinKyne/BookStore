@@ -29,6 +29,7 @@ Base.metadata.create_all(bind=TEST_ENGINE)
 
 
 def override_get_db():
+    logger.info("Overriding db ")
     db = TestingSessionLocal()
     try:
         yield db
@@ -41,7 +42,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="session", autouse=True)
 def start_fastapi():
-    logger.debug("Start test")
+    logger.info("Start test")
     process = subprocess.Popen(
         [
             sys.executable,
@@ -122,7 +123,7 @@ def db_transaction():
 
     yield
 
-    session.close()
+    #session.close()
     db_transaction.rollback()
     connection.close()
 
