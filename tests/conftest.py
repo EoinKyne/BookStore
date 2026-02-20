@@ -19,18 +19,22 @@ TEST_ENGINE = create_engine(
     "sqlite:///./testbookstore.db",
     connect_args={"check_same_thread": False}
 )
+logger.debug(f"Test engine: {TEST_ENGINE}")
 
 TestingSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=TEST_ENGINE
 )
+logger.debug(f"Testing Session local: {TestingSessionLocal}")
+
 Base.metadata.create_all(bind=TEST_ENGINE)
 
 
 def override_get_db():
-    logger.info("Overriding db ")
+    logger.debug("Overriding db ")
     db = TestingSessionLocal()
+    logger.debug(f"Db: {db}")
     try:
         yield db
     finally:
@@ -114,7 +118,7 @@ def api_request_not_authorized(playwright) -> APIRequestContext:
 
 @pytest.fixture(autouse=True)
 def db_transaction():
-    logger.debug("Rollback db after test")
+    logger.info("Rollback db after test")
     connection = TEST_ENGINE.connect()
     db_transaction = connection.begin()
 

@@ -1,5 +1,6 @@
 from BookStore.app.routes import books
 from BookStore.app.routes import auth_routes
+from BookStore.app.routes import users
 import logging
 from BookStore.app.core.logging_config import setup_logging
 from contextlib import asynccontextmanager
@@ -17,7 +18,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting Bookstore Application")
     db = SessionLocal()
-    logger.info(db)
     try:
         init_admin(db)
     finally:
@@ -29,6 +29,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Bookstore", lifespan=lifespan)
 app.include_router(books.router, prefix="/books", tags=["Books"])
 app.include_router(auth_routes.router)
+app.include_router(users.router, prefix="/users", tags=["Users"])
 
 
 @app.exception_handler(Exception)
