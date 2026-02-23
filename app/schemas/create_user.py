@@ -1,8 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreateUser(BaseModel):
-
     role: str
     username: str
     hashed_password: str
@@ -12,10 +11,10 @@ class CreateUser(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "role": "Administrator",
+                    "role": "Contributor",
                     "username": "name",
                     "password": "string",
-                    "is_active": "true or false",
+                    "is_active": True
                 }
             ]
         }

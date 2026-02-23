@@ -6,7 +6,7 @@ from BookStore.app.models.model import Book as BookModel
 from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
 from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2
-from BookStore.app.models.user_model import User
+from BookStore.app.models.model import User
 
 import logging
 
