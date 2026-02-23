@@ -21,7 +21,6 @@ def verify_password(plain_pass, hashed_pass) -> bool:
 
 def get_password_hash(password) -> str:
     logger.debug("Get password hash")
-    print(password_hash.hash(password))
     return password_hash.hash(password)
 
 

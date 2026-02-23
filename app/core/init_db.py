@@ -14,7 +14,7 @@ def init_admin(db: Session):
     logger.info("Init default user...")
     uname = "admin"
     stmt = select(UserModel).where(UserModel.username == uname)
-    result = db.execute(stmt)
+    result = db.execute(stmt).scalar_one_or_none()
 
     if result:
         return
