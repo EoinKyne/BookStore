@@ -10,12 +10,27 @@ def test_create_user(api_request_authorized):
         "/users",
         data={
             "role": "Contributor",
-            "username": "adminuserone",
-            "hashed_password": "adminone123",
+            "username": "contributor1",
+            "hashed_password": "contribone123",
             "is_active": True,
         }
     )
     assert response.status == 200
+
+
+def test_create_user_unauthorized(api_request_not_authorized):
+    logger.debug("Test create user unauthorized")
+    response = api_request_not_authorized.post(
+        "/users",
+        data={
+            "role": "Contributor",
+            "username": "contributor2",
+            "hashed_password": "contrib123",
+            "is_active": True,
+        }
+    )
+    assert response.status == 401
+    assert response.status != 200
 
 
 def test_create_user_with_unavailable_username(api_request_authorized):
@@ -38,7 +53,7 @@ def test_get_users(api_request_authorized):
         "/users",
         data={
             "role": "Contributor",
-            "username": "newadministrator",
+            "username": "contributor3",
             "hashed_password": "bkstore123",
             "is_active": "True"
         }
@@ -48,13 +63,29 @@ def test_get_users(api_request_authorized):
     assert isinstance(response.json(), list)
 
 
+def test_get_users_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test get all users unauthorized")
+    create_response = api_request_authorized.post(
+        "/users",
+        data={
+            "role": "Contributor",
+            "username": "contributor4",
+            "hashed_password": "bkstore123",
+            "is_active": "True"
+        }
+    )
+    response = api_request_not_authorized.get("/users")
+    assert response.status == 401
+    assert response.status != 200
+
+
 def test_get_user_by_id(api_request_authorized):
     logger.debug("Test get user by id")
     create_response = api_request_authorized.post(
         "users",
         data={
             "role": "Contributor",
-            "username": "newadministrator1",
+            "username": "contributor5",
             "hashed_password": "bkstore123",
             "is_active": "True"
         }
@@ -67,8 +98,27 @@ def test_get_user_by_id(api_request_authorized):
     body = response.json()
     assert body["id"] == user_id
     assert body["role"] == "Contributor"
-    assert body["username"] == "newadministrator1"
+    assert body["username"] == "contributor5"
     assert body["is_active"] is True
+
+
+def test_get_user_by_id_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test get user by id unauthorized")
+    create_response = api_request_authorized.post(
+        "users",
+        data={
+            "role": "Contributor",
+            "username": "contributor6",
+            "hashed_password": "bkstore123",
+            "is_active": "True"
+        }
+    )
+
+    user_id = create_response.json()["id"]
+
+    response = api_request_not_authorized.get(f"/users/user_id/{user_id}")
+    assert response.status == 401
+    assert response.status != 200
 
 
 def test_get_user_by_username(api_request_authorized):
@@ -77,7 +127,7 @@ def test_get_user_by_username(api_request_authorized):
         "/users",
         data={
           "role": "Contributor",
-          "username": "newusertoget",
+          "username": "contributor7",
           "hashed_password": "bkstore123",
           "is_active": "True"
         })
@@ -87,9 +137,27 @@ def test_get_user_by_username(api_request_authorized):
     response = api_request_authorized.get(f"/users/username/{usrname}")
     assert response.status == 200
     body = response.json()
-    assert body["username"] == "newusertoget"
+    assert body["username"] == "contributor7"
     assert body["role"] == "Contributor"
     assert body["is_active"] is True
+
+
+def test_get_user_by_username_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test get user by username unauthorized")
+    create_response = api_request_authorized.post(
+        "/users",
+        data={
+          "role": "Contributor",
+          "username": "contributor8",
+          "hashed_password": "bkstore123",
+          "is_active": "True"
+        })
+
+    usrname = create_response.json()["username"]
+
+    response = api_request_not_authorized.get(f"/users/username/{usrname}")
+    assert response.status == 401
+    assert response.status != 200
 
 
 def test_update_is_active_for_user(api_request_authorized):
@@ -98,7 +166,7 @@ def test_update_is_active_for_user(api_request_authorized):
         "/users",
         data={
             "role": "Contributor",
-            "username": "newadministrator2",
+            "username": "contributor9",
             "hashed_password": "bkstore123",
             "is_active": "True"
         }
@@ -115,6 +183,29 @@ def test_update_is_active_for_user(api_request_authorized):
     body = response.json()
     assert body["is_active"] is False
     assert body["is_active"] is not True
+
+
+def test_update_is_active_for_user_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test update is active for user by unauthorized")
+    create_response = api_request_authorized.post(
+        "/users",
+        data={
+            "role": "Contributor",
+            "username": "contributor10",
+            "hashed_password": "bkstore123",
+            "is_active": "True"
+        }
+    )
+    user_id = create_response.json()["id"]
+
+    response = api_request_not_authorized.patch(
+        f"/users/is_active/{user_id}",
+        data={
+            "is_active": "False"
+        }
+    )
+    assert response.status == 401
+    assert response.status != 200
 
 
 def test_update_pass_for_user(api_request_authorized):
@@ -135,12 +226,30 @@ def test_update_pass_for_user(api_request_authorized):
     )
 
     assert response.status == 200
-    body = response.json()
     user_id = create_response.json()["id"]
     api_request_authorized.patch(f"/users/credentials/{user_id}",
                                  data={
                                      "hashed_password": "admin123"
                                  })
+
+
+def test_update_pass_for_user_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test update pass for user by unauthorized")
+    usrname = "admin"
+    create_response = api_request_authorized.get(
+        f"/users/username/{usrname}"
+    )
+    user_id = create_response.json()["id"]
+
+    response = api_request_not_authorized.patch(
+        f"/users/credentials/{user_id}",
+        data={
+            "hashed_password": "admin1234"
+        }
+    )
+
+    assert response.status == 401
+    assert response.status != 200
 
 
 def test_delete_user(api_request_authorized):
@@ -149,7 +258,7 @@ def test_delete_user(api_request_authorized):
         "/users",
         data={
             "role": "Contributor",
-            "username": "newadministrator4",
+            "username": "contributor11",
             "hashed_password": "bkstore123",
             "is_active": "False"
         }
@@ -160,3 +269,22 @@ def test_delete_user(api_request_authorized):
         f"/users/{user_id}"
     )
     assert response.status == 204
+
+
+def test_delete_user_unauthorized(api_request_authorized, api_request_not_authorized):
+    logger.debug("Test delete with unauthorized")
+    create_response = api_request_authorized.post(
+        "/users",
+        data={
+            "role": "Contributor",
+            "username": "contributor12",
+            "hashed_password": "bkstore123",
+            "is_active": "False"
+        }
+    )
+    user_id = create_response.json()["id"]
+    response = api_request_not_authorized.delete(
+        f"/users/{user_id}"
+    )
+    assert response.status == 401
+    assert response.status != 204
