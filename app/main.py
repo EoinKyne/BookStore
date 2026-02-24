@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting Bookstore Application")
+
     db = SessionLocal()
     try:
         init_admin(db)
@@ -59,3 +60,9 @@ def global_exception_handler(request: Request, exc: Exception):
 #            "duration_ms": duration,
 #        }
 #    )
+#def get_db():
+#    db = SessionLocal()
+#    try:
+#        yield db
+#    finally:
+#        db.close()

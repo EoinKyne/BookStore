@@ -16,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login/form", response_model=TokenResponse)
 def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    logger.info(f"Login user: {form_data.username}")
+    logger.debug(f"Login user: {form_data.username}")
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         logger.debug("Failed login form")

@@ -62,12 +62,33 @@ def test_get_user_by_id(api_request_authorized):
 
     user_id = create_response.json()["id"]
 
-    response = api_request_authorized.get(f"/users/{user_id}")
+    response = api_request_authorized.get(f"/users/user_id/{user_id}")
     assert response.status == 200
     body = response.json()
     assert body["id"] == user_id
     assert body["role"] == "Contributor"
     assert body["username"] == "newadministrator1"
+    assert body["is_active"] is True
+
+
+def test_get_user_by_username(api_request_authorized):
+    logger.debug("Test get user by username")
+    create_response = api_request_authorized.post(
+        "/users",
+        data={
+          "role": "Contributor",
+          "username": "newusertoget",
+          "hashed_password": "bkstore123",
+          "is_active": "True"
+        })
+
+    usrname = create_response.json()["username"]
+
+    response = api_request_authorized.get(f"/users/username/{usrname}")
+    assert response.status == 200
+    body = response.json()
+    assert body["username"] == "newusertoget"
+    assert body["role"] == "Contributor"
     assert body["is_active"] is True
 
 
@@ -99,8 +120,15 @@ def test_update_is_active_for_user(api_request_authorized):
 def test_update_pass_for_user(api_request_authorized):
     logger.debug("Test update pass for user")
 
+    usrname = "admin"
+
+    create_response = api_request_authorized.get(
+        f"/users/username/{usrname}"
+    )
+    user_id = create_response.json()["id"]
+
     response = api_request_authorized.patch(
-        f"/users/credentials/1",
+        f"/users/credentials/{user_id}",
         data={
             "hashed_password": "admin1234"
         }
@@ -108,10 +136,11 @@ def test_update_pass_for_user(api_request_authorized):
 
     assert response.status == 200
     body = response.json()
-    api_request_authorized.patch(f"/users/credentials/1",
-        data={
-            "hashed_password": "admin123"
-        })
+    user_id = create_response.json()["id"]
+    api_request_authorized.patch(f"/users/credentials/{user_id}",
+                                 data={
+                                     "hashed_password": "admin123"
+                                 })
 
 
 def test_delete_user(api_request_authorized):

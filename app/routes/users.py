@@ -39,7 +39,8 @@ def create_user(user: CreateUser,
 @router.get("/", response_model=list[User])
 def get_users(db: Session = Depends(get_db),
               limit: int = Query(10, ge=1, le=100),
-              offset: int = Query(0, ge=0)):
+              offset: int = Query(0, ge=0),
+              admin_user: User = Depends(get_current_user_oauth2)):
     logger.info("Get users...")
 
     users = db.query(UserModel).order_by(UserModel.id.desc())
@@ -47,11 +48,26 @@ def get_users(db: Session = Depends(get_db),
     return users.offset(offset).limit(limit).all()
 
 
-@router.get("/{user_id}", response_model=User)
+@router.get("/user_id/{user_id}", response_model=User)
 def get_user_by_id(user_id: int,
-                   db: Session = Depends(get_db), ):
+                   db: Session = Depends(get_db),
+                   admin_user: User = Depends(get_current_user_oauth2)):
     logger.info("Get user by id")
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
+
+
+@router.get("/username/{username}", response_model=User)
+def get_user_by_username(username: str,
+                         db: Session = Depends(get_db),
+                         admin_user: User = Depends(get_current_user_oauth2)):
+    logger.info("Get user by username")
+    logger.info(username)
+    user = db.query(UserModel).filter(UserModel.username == username).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

@@ -33,7 +33,7 @@ def get_books(db: Session = Depends(get_db),
 @router.get("/{book_id}", response_model=Book)
 def get_book(book_id: int,
              db: Session = Depends(get_db)):
-    logger.info(f"Get books by id {book_id}")
+    logger.debug(f"Get books by id")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -44,7 +44,7 @@ def get_book(book_id: int,
 def create_book(book: CreateBook,
                 db: Session = Depends(get_db),
                 user: User = Depends(get_current_user_oauth2)):
-    logger.info(f"Adding new book... {book}")
+    logger.info(f"Adding new book...")
     db_book = BookModel(**book.dict())
     db.add(db_book)
     db.commit()
@@ -57,7 +57,7 @@ def update_book(book_id: int,
                 book_data: CreateBook,
                 db: Session = Depends(get_db),
                 user: User = Depends(get_current_user_oauth2)):
-    logger.info(f"Updating all book details... {book_data}")
+    logger.info(f"Updating book details... {book_data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
