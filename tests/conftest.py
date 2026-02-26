@@ -5,14 +5,17 @@ import sys
 import pytest
 import requests
 from playwright.sync_api import APIRequestContext
-from sqlalchemy import create_engine, text, inspect
-from sqlalchemy.orm import sessionmaker
-from BookStore.app.database.database import Base
+from sqlalchemy import create_engine, text, inspect, select
+from sqlalchemy.orm import sessionmaker, Session
+from BookStore.app.database.database import Base, SessionLocal
 from BookStore.app.dependencies.db_dependencies import get_db
+from BookStore.app.auth.auth import get_password_hash
 from BookStore.app.main import app
 import logging
 from dotenv import load_dotenv
 from pathlib import Path
+from BookStore.app.models.model import User as UserModel
+from BookStore.app.models.model import Role as UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +98,7 @@ def start_fastapi():
 
 
 @pytest.fixture
-def api_request_authorized(playwright) -> APIRequestContext:
+def api_request_admin(playwright) -> APIRequestContext:
     logger.debug("Execute API Request")
     request = playwright.request.new_context(base_url=BASE_URL)
 
@@ -129,28 +132,56 @@ def api_request_not_authorized(playwright) -> APIRequestContext:
     request_context.dispose()
 
 
-#@pytest.fixture
-#def api_request_contributor(playwright) -> APIRequestContext:
-#    logger.debug("Execute contributor API Request")
+@pytest.fixture(scope="session")
+def add_contributor_user_for_test():
+    logger.debug("Add contributor user for testing")
 
-#    request = playwright.request.new_context(base_url=BASE_URL)
+    db = TestingSessionLocal()
+    try:
+        uname = "bookcontributor"
+        stmt = select(UserModel).where(UserModel.username == uname)
 
-#    login = request.post(
-#        "/auth/login/form",
-##        form={
-#            "username": "newadministrator3",
-#            "hashed_password": "bkstore123",
-#        },
-#    )
-#    token = login.json()["access_token"]
-#    request_context = playwright.request.new_context(
-#        base_url=BASE_URL,
-#        extra_http_headers={
-#            "Authorization": f"Bearer {token}"
-#        },
-#    )
-#    yield request_context
-#    request_context.dispose()
+        result = db.execute(stmt).scalars().unique().one_or_none()
+
+        if not result:
+            hash_pwd = get_password_hash("contribone123")
+            roles = (
+                db.query(UserRole).filter(UserRole.name == "Contributor").first()
+            )
+            packaged_user = UserModel(
+                roles=[roles],
+                username="bookcontributor",
+                password=hash_pwd,
+                is_active=True,
+            )
+            db.add(packaged_user)
+            db.commit()
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def api_request_contributor(playwright, add_contributor_user_for_test) -> APIRequestContext:
+    logger.debug("Execute contributor API Request")
+
+    request = playwright.request.new_context(base_url=BASE_URL)
+
+    login = request.post(
+        "/auth/login/form",
+        form={
+            "username": "bookcontributor",
+            "password": "contribone123",
+        },
+    )
+    token = login.json()["access_token"]
+    request_context = playwright.request.new_context(
+        base_url=BASE_URL,
+        extra_http_headers={
+            "Authorization": f"Bearer {token}"
+        },
+    )
+    yield request_context
+    request_context.dispose()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -167,3 +198,4 @@ def cleanup_database():
             truncate = "TRUNCATE TABLE {} RESTART IDENTITY CASCADE;".format(", ".join(tables))
 
             conn.execute(text(truncate))
+

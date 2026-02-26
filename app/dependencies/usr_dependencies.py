@@ -26,3 +26,19 @@ def get_current_user_oauth2(token: str = Depends(oauth_scheme), db: Session = De
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
     return user
 
+
+def requre_permission(permission: str):
+    logger.info("Checking permissions...")
+
+    def checker(
+            current_user: User = Depends(get_current_user_oauth2),
+    ):
+        logger.info("Running checker...")
+        if not current_user.has_permission(permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions",
+            )
+        return current_user
+    return checker
+

@@ -7,6 +7,7 @@ from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
 from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2
 from BookStore.app.models.model import User
+from BookStore.app.dependencies.usr_dependencies import requre_permission
 
 import logging
 
@@ -43,7 +44,7 @@ def get_book(book_id: int,
 @router.post("/", response_model=Book)
 def create_book(book: CreateBook,
                 db: Session = Depends(get_db),
-                user: User = Depends(get_current_user_oauth2)):
+                user: User = Depends(requre_permission("book:create"))):
     logger.info(f"Adding new book...")
     db_book = BookModel(**book.dict())
     db.add(db_book)
@@ -56,7 +57,7 @@ def create_book(book: CreateBook,
 def update_book(book_id: int,
                 book_data: CreateBook,
                 db: Session = Depends(get_db),
-                user: User = Depends(get_current_user_oauth2)):
+                user: User = Depends(requre_permission("book:update"))):
     logger.info(f"Updating book details... {book_data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
@@ -71,7 +72,7 @@ def update_book(book_id: int,
 @router.delete("/{book_id}", status_code=204)
 def delete_book(book_id: int,
                 db: Session = Depends(get_db),
-                user: User = Depends(get_current_user_oauth2)):
+                user: User = Depends(requre_permission("book:delete"))):
     logger.info(f"Deleting book id {book_id}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
     if not book:
@@ -85,7 +86,7 @@ def patch_book(
         book_id: int,
         data: PatchBook,
         db: Session = Depends(get_db),
-        user: User = Depends(get_current_user_oauth2)
+        user: User = Depends(requre_permission("book:update"))
 ):
     logger.info(f"Updating book for details {data}")
     book = db.query(BookModel).filter(BookModel.id == book_id).first()
