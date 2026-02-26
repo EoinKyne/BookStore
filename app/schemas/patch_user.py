@@ -17,7 +17,7 @@ class UpdateIsActiveUser(BaseModel):
 
 
 class UpdatePass(BaseModel):
-    hashed_password: str
+    password: str
 
     model_config = {
         "json_schema_extra": {

@@ -18,7 +18,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def login_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     logger.debug(f"Login user: {form_data.username}")
     user = db.query(User).filter(User.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(form_data.password, user.password):
         logger.debug("Failed login form")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid User")
     token = create_access_token({"sub": user.username})

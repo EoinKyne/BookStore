@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
 from fastapi import Request, FastAPI
 from BookStore.app.core.init_db import init_admin
+from BookStore.app.core.seed_roles_permissions import seed_roles
 from BookStore.app.database.database import SessionLocal
-
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -20,6 +20,8 @@ async def lifespan(app: FastAPI):
 
     db = SessionLocal()
     try:
+        logger.info("init db tasks")
+        seed_roles(db)
         init_admin(db)
     finally:
         db.close()
