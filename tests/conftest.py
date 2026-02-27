@@ -199,3 +199,17 @@ def cleanup_database():
 
             conn.execute(text(truncate))
 
+
+@pytest.fixture
+def db_session():
+    connection = TEST_ENGINE.connect()
+    transaction = connection.begin()
+
+    Session = sessionmaker(bind=connection)
+    session = Session()
+
+    yield session
+
+    session.close()
+    transaction.rollback()
+    connection.close()
