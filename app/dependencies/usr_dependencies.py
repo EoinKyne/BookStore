@@ -1,12 +1,12 @@
-from typing import Type
+import logging
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from BookStore.app.auth.auth import decode_access_token
-from BookStore.app.models.model import User
-from BookStore.app.dependencies.db_dependencies import get_db
 from sqlalchemy.orm import Session
-import logging
+
+from BookStore.app.auth.auth import decode_access_token
+from BookStore.app.dependencies.db_dependencies import get_db
+from BookStore.app.models.model import User
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +28,12 @@ def get_current_user_oauth2(token: str = Depends(oauth_scheme), db: Session = De
 
 
 def requre_permission(permission: str):
-    logger.info("Checking permissions...")
+    logger.debug("Checking permissions...")
 
     def checker(
             current_user: User = Depends(get_current_user_oauth2),
     ):
-        logger.info("Running checker...")
+        logger.debug("Running checker...")
         if not current_user.has_permission(permission):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

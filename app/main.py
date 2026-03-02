@@ -1,14 +1,16 @@
-from BookStore.app.routes import books
-from BookStore.app.routes import auth_routes
-from BookStore.app.routes import users
 import logging
-from BookStore.app.core.logging_config import setup_logging
 from contextlib import asynccontextmanager
-from fastapi.responses import JSONResponse
+
 from fastapi import Request, FastAPI
+from fastapi.responses import JSONResponse
+
 from BookStore.app.core.init_db import init_admin
+from BookStore.app.core.logging_config import setup_logging
 from BookStore.app.core.seed_roles_permissions import seed_roles
 from BookStore.app.database.database import SessionLocal
+from BookStore.app.routes import auth_routes
+from BookStore.app.routes import books
+from BookStore.app.routes import users
 
 setup_logging()
 logger = logging.getLogger(__name__)

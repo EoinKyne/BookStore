@@ -1,10 +1,11 @@
+import logging
+
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, Depends, Query
+
 from BookStore.app.models.model import Book as BookModel
 from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
-import logging
-
 
 logger = logging.getLogger(__name__)
 

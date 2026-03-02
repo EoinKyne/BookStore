@@ -1,12 +1,14 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from BookStore.app.auth.auth import create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
-from BookStore.app.schemas.auth import TokenResponse
+from sqlalchemy.orm import Session
+
+from BookStore.app.auth.auth import create_access_token
 from BookStore.app.auth.auth import verify_password
 from BookStore.app.dependencies.db_dependencies import get_db
-from sqlalchemy.orm import Session
 from BookStore.app.models.model import User
-import logging
+from BookStore.app.schemas.auth import TokenResponse
 
 logger = logging.getLogger(__name__)
 

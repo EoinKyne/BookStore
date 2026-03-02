@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from BookStore.app.models.model import Role as UserRole
+
 from BookStore.app.models.model import Permission as UserPermission
+from BookStore.app.models.model import Role as UserRole
 
 
 def seed_roles(db: Session):

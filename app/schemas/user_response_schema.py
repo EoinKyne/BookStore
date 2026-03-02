@@ -3,6 +3,7 @@ from BookStore.app.schemas.role_response_schema import RoleResponse
 
 
 class UserResponse(BaseModel):
+    id: int
     username: str
     is_active: bool
     roles: list[RoleResponse]

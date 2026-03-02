@@ -1,6 +1,5 @@
 import logging
 import logging.config
-from pythonjsonlogger.json import JsonFormatter
 
 LOGGING_CONFIG = {
     "version": 1,

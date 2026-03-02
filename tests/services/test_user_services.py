@@ -1,13 +1,14 @@
-import pytest
-from unittest.mock import MagicMock
-from fastapi import HTTPException, status
-from BookStore.app.services import user_service
-from BookStore.app.models.model import User as UserModel
-from BookStore.app.models.model import Role as UserRole
-from BookStore.app.schemas.patch_user import UpdateIsActiveUser, UpdatePass
-from BookStore.app.schemas.create_user import CreateUser
-from BookStore.app.auth.auth import get_password_hash, verify_password
 import logging
+
+import pytest
+from fastapi import HTTPException, status
+
+from BookStore.app.auth.auth import get_password_hash, verify_password
+from BookStore.app.models.model import Role as UserRole
+from BookStore.app.models.model import User as UserModel
+from BookStore.app.schemas.create_user import CreateUser
+from BookStore.app.schemas.patch_user import UpdateIsActiveUser, UpdatePass
+from BookStore.app.services import user_service
 
 logger = logging.getLogger(__name__)
 
