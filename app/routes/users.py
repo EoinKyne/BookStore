@@ -1,14 +1,14 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from BookStore.app.models.model import User as UserModel
-from BookStore.app.models.model import Role as UserRole
+
 from BookStore.app.dependencies.db_dependencies import get_db
-from BookStore.app.schemas.user import User
+from BookStore.app.dependencies.usr_dependencies import requre_permission
+from BookStore.app.models.model import User as UserModel
 from BookStore.app.schemas.create_user import CreateUser
-from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2, requre_permission
-from BookStore.app.auth.auth import get_password_hash
 from BookStore.app.schemas.patch_user import UpdateIsActiveUser, UpdatePass
+from BookStore.app.schemas.user import User
 from BookStore.app.schemas.user_response_schema import UserResponse
 from BookStore.app.services import user_service
 

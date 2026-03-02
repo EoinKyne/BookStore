@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
-from jose import jwt, JWTError
-from typing import Optional
-from pwdlib import PasswordHash
 import logging
+from datetime import datetime, timedelta
+from typing import Optional
+
+from jose import jwt, JWTError
+from pwdlib import PasswordHash
 
 logger = logging.getLogger(__name__)
 

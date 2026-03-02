@@ -1,12 +1,14 @@
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from BookStore.app.models.model import User as UserModel
-from BookStore.app.models.model import Role as UserRole
-from BookStore.app.schemas.patch_user import UpdatePass, UpdateIsActiveUser
-from BookStore.app.schemas.create_user import CreateUser
-from BookStore.app.auth.auth import get_password_hash
-from fastapi import HTTPException, status
 import logging
+
+from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from BookStore.app.auth.auth import get_password_hash
+from BookStore.app.models.model import Role as UserRole
+from BookStore.app.models.model import User as UserModel
+from BookStore.app.schemas.create_user import CreateUser
+from BookStore.app.schemas.patch_user import UpdatePass, UpdateIsActiveUser
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,9 @@
-from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from BookStore.app.database.database import Base
 from typing import List
 
+from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from BookStore.app.database.database import Base
 
 user_roles = Table(
     "user_roles",

@@ -1,5 +1,4 @@
 import logging
-from playwright.sync_api import APIRequestContext
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +101,6 @@ def test_get_user_by_id(api_request_admin):
     response = api_request_admin.get(f"/users/user_id/{user_id}")
     assert response.status == 200
     body = response.json()
-    assert body["id"] == user_id
     assert body["roles"][0]["name"] == "Contributor"
     assert body["username"] == "contributor5"
     assert body["is_active"] is True

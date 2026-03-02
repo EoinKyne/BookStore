@@ -1,12 +1,11 @@
-from sqlalchemy.orm import Session
-from BookStore.app.models.model import User as UserModel
-from BookStore.app.models.model import Role as UserRole
-from BookStore.app.routes.users import User
-from BookStore.app.auth.auth import get_password_hash
-from BookStore.app.dependencies.db_dependencies import get_db
-from sqlalchemy import select
-from fastapi import Depends
 import logging
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from BookStore.app.auth.auth import get_password_hash
+from BookStore.app.models.model import Role as UserRole
+from BookStore.app.models.model import User as UserModel
 
 logger = logging.getLogger(__name__)
 

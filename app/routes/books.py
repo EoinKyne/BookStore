@@ -1,17 +1,15 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
-from BookStore.app.schemas.book import Book
-from sqlalchemy.orm import Session
-from BookStore.app.dependencies.db_dependencies import get_db
-from BookStore.app.models.model import Book as BookModel
-from BookStore.app.schemas.create_book import CreateBook
-from BookStore.app.schemas.patch_book import PatchBook
-from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2
-from BookStore.app.models.model import User
-from BookStore.app.dependencies.usr_dependencies import requre_permission
-from BookStore.app.services import book_service
-
 import logging
 
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+
+from BookStore.app.dependencies.db_dependencies import get_db
+from BookStore.app.dependencies.usr_dependencies import requre_permission
+from BookStore.app.models.model import User
+from BookStore.app.schemas.book import Book
+from BookStore.app.schemas.create_book import CreateBook
+from BookStore.app.schemas.patch_book import PatchBook
+from BookStore.app.services import book_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

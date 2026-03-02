@@ -1,21 +1,23 @@
+import logging
 import os
 import subprocess
-import time
 import sys
+import time
+from pathlib import Path
+
 import pytest
 import requests
+from dotenv import load_dotenv
 from playwright.sync_api import APIRequestContext
 from sqlalchemy import create_engine, text, inspect, select
-from sqlalchemy.orm import sessionmaker, Session
-from BookStore.app.database.database import Base, SessionLocal
-from BookStore.app.dependencies.db_dependencies import get_db
+from sqlalchemy.orm import sessionmaker
+
 from BookStore.app.auth.auth import get_password_hash
+from BookStore.app.database.database import Base
+from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.main import app
-import logging
-from dotenv import load_dotenv
-from pathlib import Path
-from BookStore.app.models.model import User as UserModel
 from BookStore.app.models.model import Role as UserRole
+from BookStore.app.models.model import User as UserModel
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,12 @@
+import logging
+
 import pytest
 from fastapi import HTTPException, status
+
 from BookStore.app.models.model import Book as BookModel
-from BookStore.app.services import book_service
 from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.schemas.patch_book import PatchBook
-import logging
+from BookStore.app.services import book_service
 
 logger = logging.getLogger(__name__)
 
