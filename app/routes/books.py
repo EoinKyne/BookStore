@@ -8,6 +8,7 @@ from BookStore.app.schemas.patch_book import PatchBook
 from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2
 from BookStore.app.models.model import User
 from BookStore.app.dependencies.usr_dependencies import requre_permission
+from BookStore.app.services import book_service
 
 import logging
 
@@ -22,22 +23,15 @@ def get_books(db: Session = Depends(get_db),
               offset: int = Query(0, ge=0),
               author: str | None = None):
     logger.info("Get books...")
-
-    books = db.query(BookModel).order_by(BookModel.id.desc())
-
-    if author:
-        books = books.filter(BookModel.author.ilike(f"%{author}%"))
-
-    return books.offset(offset).limit(limit).all()
+    books = book_service.get_books(db, limit, offset, author)
+    return books
 
 
 @router.get("/{book_id}", response_model=Book)
 def get_book(book_id: int,
              db: Session = Depends(get_db)):
     logger.debug(f"Get books by id")
-    book = db.query(BookModel).filter(BookModel.id == book_id).first()
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found")
+    book = book_service.get_book_or_404(db, book_id)
     return book
 
 
@@ -46,10 +40,8 @@ def create_book(book: CreateBook,
                 db: Session = Depends(get_db),
                 user: User = Depends(requre_permission("book:create"))):
     logger.info(f"Adding new book...")
-    db_book = BookModel(**book.dict())
-    db.add(db_book)
-    db.commit()
-    db.refresh(db_book)
+    db_book = book_service.create_book(db, book)
+
     return db_book
 
 
@@ -58,14 +50,9 @@ def update_book(book_id: int,
                 book_data: CreateBook,
                 db: Session = Depends(get_db),
                 user: User = Depends(requre_permission("book:update"))):
-    logger.info(f"Updating book details... {book_data}")
-    book = db.query(BookModel).filter(BookModel.id == book_id).first()
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found")
-    for field, value in book_data.dict().items():
-        setattr(book, field, value)
-    db.commit()
-    db.refresh(book)
+    logger.info(f"Updating book details...")
+    book = book_service.update_book(db, book_id, book_data)
+
     return book
 
 
@@ -74,11 +61,7 @@ def delete_book(book_id: int,
                 db: Session = Depends(get_db),
                 user: User = Depends(requre_permission("book:delete"))):
     logger.info(f"Deleting book id {book_id}")
-    book = db.query(BookModel).filter(BookModel.id == book_id).first()
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found")
-    db.delete(book)
-    db.commit()
+    book_service.delete_book(db, book_id)
 
 
 @router.patch("/{book_id}", response_model=Book)
@@ -89,10 +72,8 @@ def patch_book(
         user: User = Depends(requre_permission("book:update"))
 ):
     logger.info(f"Updating book for details {data}")
-    book = db.query(BookModel).filter(BookModel.id == book_id).first()
-    if not Book:
-        raise HTTPException(status_code=404, detail="Book not found")
-
+    book = book_service.patch_book(db, book_id, data)
+    '''
     updates = data.model_dump(exclude_unset=True)
 
     for field, value in updates.items():
@@ -100,4 +81,5 @@ def patch_book(
 
     db.commit()
     db.refresh(book)
+    '''
     return book

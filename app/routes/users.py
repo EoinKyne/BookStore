@@ -22,29 +22,7 @@ def create_user(user: CreateUser,
                 admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info(f"Adding new user...")
     db_user = user_service.create_user(db, user)
-    '''
-    check_user = (db.query(UserModel).filter(UserModel.username == user.username).first())
-    
-    if check_user:
-        raise HTTPException(status_code=409, detail="User already exists")
 
-    user_roles = (db.query(UserRole).filter(UserRole.name.in_(user.roles)).all())
-
-    if not user_roles:
-        raise HTTPException(status_code=400, detail="Invalid Role")
-
-    hash_pwd = get_password_hash(user.password)
-
-    db_user = UserModel(
-        roles=user_roles,
-        username=user.username,
-        password=hash_pwd,
-        is_active=user.is_active,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    '''
     return db_user
 
 

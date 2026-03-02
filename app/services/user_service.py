@@ -35,7 +35,7 @@ def get_username_or_404(db: Session, username: str) -> UserModel:
     return user
 
 
-def delete_user(db: Session, user_id: int) -> None:
+def delete_user(db: Session, user_id: int):
     logger.debug("Delete user")
     user = get_user_or_404(db, user_id)
 

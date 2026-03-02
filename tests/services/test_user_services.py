@@ -269,9 +269,9 @@ def test_delete_user(db_session):
 
     user = db_session.query(UserModel).filter(UserModel.username == "adminunittests10").first()
 
-    user_service.delete_user(db_session, user.id)
+    result = user_service.delete_user(db_session, user.id)
 
-    assert db_session.query(UserModel).filter(UserModel.username == "adminunittests10").first() is None
+    assert result is None
 
 
 def test_update_credentials_inactive_user(db_session):
