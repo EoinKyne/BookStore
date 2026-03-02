@@ -10,6 +10,7 @@ from BookStore.app.dependencies.usr_dependencies import get_current_user_oauth2,
 from BookStore.app.auth.auth import get_password_hash
 from BookStore.app.schemas.patch_user import UpdateIsActiveUser, UpdatePass
 from BookStore.app.schemas.user_response_schema import UserResponse
+from BookStore.app.services import user_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -20,7 +21,10 @@ def create_user(user: CreateUser,
                 db: Session = Depends(get_db),
                 admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info(f"Adding new user...")
+    db_user = user_service.create_user(db, user)
+    '''
     check_user = (db.query(UserModel).filter(UserModel.username == user.username).first())
+    
     if check_user:
         raise HTTPException(status_code=409, detail="User already exists")
 
@@ -40,6 +44,7 @@ def create_user(user: CreateUser,
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    '''
     return db_user
 
 
@@ -60,10 +65,7 @@ def get_user_by_id(user_id: int,
                    db: Session = Depends(get_db),
                    admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Get user by id")
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = user_service.get_user_or_404(db, user_id)
 
     return user
 
@@ -73,61 +75,42 @@ def get_user_by_username(username: str,
                          db: Session = Depends(get_db),
                          admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Get user by username")
-    user = db.query(UserModel).filter(UserModel.username == username).first()
 
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = user_service.get_username_or_404(db, username)
 
     return user
 
 
-@router.patch("/is_active/{user_id}", response_model=UserResponse)
-def update_is_active_user(user_id: int,
-                          data: UpdateIsActiveUser,
-                          db: Session = Depends(get_db),
-                          admin_user: User = Depends(requre_permission("admin:full"))):
+@router.patch("/deactivate/{user_id}", response_model=UserResponse)
+def deactivate_user(user_id: int,
+                    data: UpdateIsActiveUser,
+                    db: Session = Depends(get_db),
+                    admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Update is active for user")
+    user = user_service.deactivate_user(db, user_id, data)
 
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
-    if not admin_user.has_permission("admin:full"):
-        raise HTTPException(status_code=405, detail="Not allowed")
 
-    updates = data.dict(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(user, field, value)
+@router.patch("/activate/{user_id}", response_model=UserResponse)
+def activate_user(user_id: int,
+                  data: UpdateIsActiveUser,
+                  db: Session = Depends(get_db),
+                  admin_user: User = Depends(requre_permission("admin:full"))):
+    logger.debug("Update is active for user")
+    user = user_service.activate_user(db, user_id, data)
 
-    db.commit()
-    db.refresh(user)
     return user
 
 
 @router.patch("/credentials/{user_id}", response_model=UserResponse)
-def update_passwd(user_id: int,
+def update_creds(user_id: int,
                   data: UpdatePass,
                   db: Session = Depends(get_db),
                   admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Update credentials for user")
 
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if not admin_user.has_permission("admin:full"):
-        raise HTTPException(status_code=405, detail="Not allowed")
-
-    updates = data.dict(exclude_unset=True)
-
-    for field, value in updates.items():
-        if field == "password":
-            value = get_password_hash(value)
-        setattr(user, field, value)
-
-    db.commit()
-    db.refresh(user)
+    user = user_service.update_credentials(db, user_id, data)
     return user
 
 
@@ -137,18 +120,4 @@ def delete_user(user_id: int,
                 admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Delete user")
 
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    is_not_active_user = db.query(UserModel).filter(UserModel.id == user_id,
-                                                    UserModel.is_active.is_(False)).first()
-
-    if not is_not_active_user:
-        raise HTTPException(status_code=405, detail="Not allowed")
-
-    if not admin_user.has_permission("admin:full"):
-        raise HTTPException(status_code=405, detail="Not allowed")
-
-    db.delete(is_not_active_user)
-    db.commit()
+    user_service.delete_user(db, user_id)

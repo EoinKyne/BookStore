@@ -63,10 +63,10 @@ def test_get_users(api_request_admin):
     assert isinstance(response.json(), list)
 
 
-#def test_get_users_invalid_permissions(api_request_contributor):
-#    logger.debug("Test get all users with invalid permissions")
-#    response = api_request_contributor.get("/users")
-#    assert response.status == 403
+def test_get_users_invalid_permissions(api_request_contributor):
+    logger.debug("Test get all users with invalid permissions")
+    response = api_request_contributor.get("/users")
+    assert response.status == 403
 
 
 def test_get_users_unauthorized(api_request_admin, api_request_not_authorized):
@@ -166,7 +166,7 @@ def test_get_user_by_username_unauthorized(api_request_admin, api_request_not_au
     assert response.status != 200
 
 
-def test_update_is_active_for_user(api_request_admin):
+def test_update_deactivate_is_active_for_user(api_request_admin):
     logger.debug("Test update is active for user")
     create_response = api_request_admin.post(
         "/users",
@@ -180,7 +180,7 @@ def test_update_is_active_for_user(api_request_admin):
     user_id = create_response.json()["id"]
 
     response = api_request_admin.patch(
-        f"/users/is_active/{user_id}",
+        f"/users/deactivate/{user_id}",
         data={
             "is_active": "False"
         }
@@ -205,7 +205,7 @@ def test_update_is_active_for_user_unauthorized(api_request_admin, api_request_n
     user_id = create_response.json()["id"]
 
     response = api_request_not_authorized.patch(
-        f"/users/is_active/{user_id}",
+        f"/users/deactivate/{user_id}",
         data={
             "is_active": "False"
         }
@@ -294,3 +294,52 @@ def test_delete_user_unauthorized(api_request_admin, api_request_not_authorized)
     )
     assert response.status == 401
     assert response.status != 204
+
+
+def test_update_activate_is_active_to_true_admin(api_request_admin):
+    logger.debug("Update is active to true for user")
+    create_response = api_request_admin.post(
+        "/users",
+        data={
+            "roles": ["Contributor"],
+            "username": "contributor13",
+            "password": "bkstore123",
+            "is_active": "False"
+        }
+    )
+    user_id = create_response.json()["id"]
+
+    response = api_request_admin.patch(
+        f"/users/activate/{user_id}",
+        data={
+            "is_active": True
+        }
+    )
+
+    assert response.status == 200
+    body = response.json()
+    assert body["is_active"] is True
+    assert body["is_active"] is not False
+
+
+def test_update_is_active_to_true_unauthorized(api_request_admin, api_request_not_authorized):
+    logger.debug("Test set is active to true for unauthorized user")
+    create_response = api_request_admin.post(
+        "/users",
+        data={
+            "roles": ["Contributor"],
+            "username": "contributor14",
+            "password": "bkstore123",
+            "is_active": "False"
+        }
+    )
+    user_id = create_response.json()["id"]
+
+    response = api_request_not_authorized.patch(
+        f"/users/activate/{user_id}",
+        data={
+            "is_active": "True"
+        }
+    )
+
+    assert response.status == 401
