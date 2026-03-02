@@ -93,7 +93,7 @@ def patch_book(
     if not Book:
         raise HTTPException(status_code=404, detail="Book not found")
 
-    updates = data.dict(exclude_unset=True)
+    updates = data.model_dump(exclude_unset=True)
 
     for field, value in updates.items():
         setattr(book, field, value)

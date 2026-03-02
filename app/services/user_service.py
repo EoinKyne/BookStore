@@ -102,7 +102,13 @@ def update_credentials(db: Session, user_id: int, data: UpdatePass) -> UserModel
     logger.debug("Update credentials")
     user = get_user_or_404(db, user_id)
 
-    updates = data.dict(exclude_unset=True)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is marked inactive"
+        )
+
+    updates = data.model_dump(exclude_unset=True)
     for field, value in updates.items():
         if field == "password":
             value = get_password_hash(value)
