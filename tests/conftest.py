@@ -3,11 +3,11 @@ import os
 import subprocess
 import sys
 import time
-from pathlib import Path
+
+os.environ["ENV_FILE"] = ".env.test"
 
 import pytest
 import requests
-from dotenv import load_dotenv
 from playwright.sync_api import APIRequestContext
 from sqlalchemy import create_engine, text, inspect, select
 from sqlalchemy.orm import sessionmaker
@@ -18,14 +18,17 @@ from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.main import app
 from BookStore.app.models.model import Role as UserRole
 from BookStore.app.models.model import User as UserModel
+from BookStore.app.core.config import Settings
 
 logger = logging.getLogger(__name__)
 
+
 BASE_URL = "http://127.0.0.1:8000"
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(".env.test", override=True)
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+test_settings = Settings(_env_file=".env.test")
+DATABASE_URL = test_settings.database_url
+logger.info(DATABASE_URL)
 
 TEST_ENGINE = create_engine(
     DATABASE_URL,
