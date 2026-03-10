@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.dependencies.usr_dependencies import requre_permission
@@ -39,7 +40,7 @@ def get_users(db: Session = Depends(get_db),
 
 
 @router.get("/user_id/{user_id}", response_model=UserResponse)
-def get_user_by_id(user_id: int,
+def get_user_by_id(user_id: UUID,
                    db: Session = Depends(get_db),
                    admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Get user by id")
@@ -60,7 +61,7 @@ def get_user_by_username(username: str,
 
 
 @router.patch("/deactivate/{user_id}", response_model=UserResponse)
-def deactivate_user(user_id: int,
+def deactivate_user(user_id: UUID,
                     data: UpdateIsActiveUser,
                     db: Session = Depends(get_db),
                     admin_user: User = Depends(requre_permission("admin:full"))):
@@ -71,7 +72,7 @@ def deactivate_user(user_id: int,
 
 
 @router.patch("/activate/{user_id}", response_model=UserResponse)
-def activate_user(user_id: int,
+def activate_user(user_id: UUID,
                   data: UpdateIsActiveUser,
                   db: Session = Depends(get_db),
                   admin_user: User = Depends(requre_permission("admin:full"))):
@@ -82,7 +83,7 @@ def activate_user(user_id: int,
 
 
 @router.patch("/credentials/{user_id}", response_model=UserResponse)
-def update_creds(user_id: int,
+def update_creds(user_id: UUID,
                   data: UpdatePass,
                   db: Session = Depends(get_db),
                   admin_user: User = Depends(requre_permission("admin:full"))):
@@ -93,7 +94,7 @@ def update_creds(user_id: int,
 
 
 @router.delete("/{user_id}", status_code=204)
-def delete_user(user_id: int,
+def delete_user(user_id: UUID,
                 db: Session = Depends(get_db),
                 admin_user: User = Depends(requre_permission("admin:full"))):
     logger.info("Delete user")

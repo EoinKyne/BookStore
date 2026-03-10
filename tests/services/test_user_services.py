@@ -1,7 +1,9 @@
 import logging
+import uuid
 
 import pytest
 from fastapi import HTTPException, status
+from uuid import UUID
 
 from BookStore.app.auth.auth import get_password_hash, verify_password
 from BookStore.app.models.model import Role as UserRole
@@ -40,7 +42,7 @@ def test_get_user_returns_user(db_session):
 def test_get_user_raises_404(db_session):
     logger.debug("Test get user by id not found raises 404")
     with pytest.raises(HTTPException) as exc_info:
-        user_service.get_user_or_404(db_session, 99999)
+        user_service.get_user_or_404(db_session, uuid.uuid4())
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
 
 

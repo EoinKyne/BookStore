@@ -1,4 +1,7 @@
 import logging
+import uuid
+
+from uuid import UUID
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +97,8 @@ def test_delete_of_book(api_request_admin):
 
 def test_get_book_not_found(api_request_not_authorized):
     logger.debug("Test book not found")
-    response = api_request_not_authorized.get(f"/books/99999")
+    book_id = uuid.uuid4()
+    response = api_request_not_authorized.get(f"/books/{book_id}")
     assert response.status == 404
     assert response.json()["detail"] == "Book not found"
 
