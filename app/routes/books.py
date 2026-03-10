@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.dependencies.usr_dependencies import requre_permission
@@ -26,7 +27,7 @@ def get_books(db: Session = Depends(get_db),
 
 
 @router.get("/{book_id}", response_model=Book)
-def get_book(book_id: int,
+def get_book(book_id: UUID,
              db: Session = Depends(get_db)):
     logger.debug(f"Get books by id")
     book = book_service.get_book_or_404(db, book_id)
@@ -44,7 +45,7 @@ def create_book(book: CreateBook,
 
 
 @router.put("/{book_id}", response_model=Book)
-def update_book(book_id: int,
+def update_book(book_id: UUID,
                 book_data: CreateBook,
                 db: Session = Depends(get_db),
                 user: User = Depends(requre_permission("book:update"))):
@@ -55,7 +56,7 @@ def update_book(book_id: int,
 
 
 @router.delete("/{book_id}", status_code=204)
-def delete_book(book_id: int,
+def delete_book(book_id: UUID,
                 db: Session = Depends(get_db),
                 user: User = Depends(requre_permission("book:delete"))):
     logger.info(f"Deleting book id {book_id}")
@@ -64,7 +65,7 @@ def delete_book(book_id: int,
 
 @router.patch("/{book_id}", response_model=Book)
 def patch_book(
-        book_id: int,
+        book_id: UUID,
         data: PatchBook,
         db: Session = Depends(get_db),
         user: User = Depends(requre_permission("book:update"))

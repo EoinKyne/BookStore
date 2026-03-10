@@ -1,7 +1,9 @@
 import logging
+import uuid
 
 import pytest
 from fastapi import HTTPException, status
+from uuid import UUID
 
 from BookStore.app.models.model import Book as BookModel
 from BookStore.app.schemas.create_book import CreateBook
@@ -37,7 +39,7 @@ def test_get_book_or_404_not_found(db_session):
     logger.debug("Test get book that does not exist")
 
     with pytest.raises(HTTPException) as exc_info:
-        book_service.get_book_or_404(db_session, 99999)
+        book_service.get_book_or_404(db_session, uuid.uuid4())
     assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
 
 

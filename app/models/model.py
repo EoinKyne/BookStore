@@ -1,6 +1,8 @@
+import uuid
 from typing import List
 
-from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column
+from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column, Numeric
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from BookStore.app.database.database import Base
@@ -24,7 +26,7 @@ role_permissions = Table(
 class Book(Base):
     __tablename__ = "books"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String, nullable=False)
     author: Mapped[str] = mapped_column(String, nullable=False)
     price: Mapped[float] = mapped_column(Float, nullable=False)
@@ -33,7 +35,7 @@ class Book(Base):
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -80,3 +82,43 @@ class Permission(Base):
         secondary=role_permissions,
         back_populates="permissions",
     )
+
+
+class Cart(Base):
+    __tablename__ = "cart"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
+    session_id: Mapped[str] = mapped_column(String, nullable=True)
+
+    items = relationship("CartItem", back_populates="cart")
+
+
+class CartItem(Base):
+    __tablename__ = "cart_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    cart_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cart.id"))
+    book_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("books.id"))
+    quantity: Mapped[int] = mapped_column(Integer)
+
+    cart = relationship("Cart", back_populates="items")
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
+    status: Mapped[str] = mapped_column(String)
+    total_price: Mapped[float] = mapped_column(Numeric)
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    order_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("orders.id"))
+    book_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    price: Mapped[float] = mapped_column(Numeric)
+    quantity: Mapped[int] = mapped_column(Integer)
