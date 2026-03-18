@@ -51,10 +51,3 @@ def checkout_cart(request: Request,
 
     return CheckoutResponse(order_id=order.id,
                             total=order.total_price)
-
-
-
-#BookStore\app\routes\auth_routes.py                    20      7    65%   21-27
-#BookStore\app\routes\books.py                          43     18    58%   24-26, 32-34, 41-44, 52-55, 62-63, 73-84
-#BookStore\app\routes\cart.py                           30     15    50%   19-26, 34-39, 46-50
-#BookStore\app\routes\users.py                          53     23    57%   24-27, 35-39, 46-49, 56-60, 68-71, 79-82, 90-93, 100-102

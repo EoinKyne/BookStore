@@ -3,6 +3,7 @@ import uuid
 
 import pytest
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from BookStore.app.auth.auth import get_password_hash, verify_password
 from BookStore.app.models.model import Role as UserRole
@@ -150,6 +151,25 @@ def test_deactivate_user(db_session):
     assert result.is_active is False
 
 
+def test_deactive_user_integrity_error(mocker):
+    logger.debug("Test deactivate user integrity error")
+    db = mocker.Mock()
+    user = mocker.Mock()
+    user.id = uuid.uuid4()
+    user.is_active = True
+
+    mocker.patch("BookStore.app.services.user_service.get_user_or_404", return_value=user)
+    mocker.patch("BookStore.app.services.user_service.update_is_active_field", return_value=user)
+
+    db.commit.side_effect = IntegrityError("stmt", "para", "orig")
+
+    with pytest.raises(IntegrityError):
+        user_service.deactivate_user(db, user_id=user.id, data=False)
+
+    db.commit.assert_called_once()
+    db.rollback.assert_called_once()
+
+
 def test_activate_user_if_is_active_true(db_session):
     logger.debug("Test activate is active field from True to True")
     roles = (
@@ -198,6 +218,25 @@ def test_activate_user_if_is_active_false(db_session):
 
     assert result == user
     assert result.is_active is True
+
+
+def test_activate_user_integrity_error(mocker):
+    logger.debug("Test activate user integrity error")
+    db = mocker.Mock()
+    user = mocker.Mock()
+    user.id = uuid.uuid4()
+    user.is_active = False
+
+    mocker.patch("BookStore.app.services.user_service.get_user_or_404", return_value=user)
+    mocker.patch("BookStore.app.services.user_service.update_is_active_field", return_value=user)
+
+    db.commit.side_effect = IntegrityError("stmt", "param", "orig")
+
+    with pytest.raises(IntegrityError):
+        user_service.activate_user(db, user_id=user.id, data=True)
+
+    db.commit.assert_called_once()
+    db.rollback.assert_called_once()
 
 
 def test_update_is_active_field(db_session):
@@ -276,6 +315,25 @@ def test_delete_user(db_session):
     assert result is None
 
 
+def test_delete_user_integrity_error(mocker):
+    logger.debug("Test delete user integrity error")
+    db = mocker.Mock()
+    user = mocker.Mock()
+    user.id = uuid.uuid4()
+    user.is_active = False
+
+    mocker.patch("BookStore.app.services.user_service.get_user_or_404", return_value=user)
+
+    db.commit.side_effect = IntegrityError("stmt", "param", "orig")
+
+    with pytest.raises(IntegrityError):
+        user_service.delete_user(db, user_id=user.id)
+
+    db.delete.assert_called_once_with(user)
+    db.commit.assert_called_once()
+    db.rollback.assert_called_once()
+
+
 def test_update_credentials_inactive_user(db_session):
     logger.debug("Test update credentials for user is active is false")
     roles = (
@@ -300,6 +358,25 @@ def test_update_credentials_inactive_user(db_session):
         user_service.update_credentials(db_session, user.id, data)
 
     assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_update_credentials_user_integrity_error(mocker):
+    logger.debug("Test delete user integrity error")
+    db = mocker.Mock()
+    user = mocker.Mock()
+    user.id = uuid.uuid4()
+    user.is_active = True
+
+    mocker.patch("BookStore.app.services.user_service.get_user_or_404", return_value=user)
+    credentials = UpdatePass(password="admin1234")
+
+    db.commit.side_effect = IntegrityError("stmt", "param", "orig")
+
+    with pytest.raises(IntegrityError):
+        user_service.update_credentials(db, user_id=user.id, data=credentials)
+
+    db.commit.assert_called_once()
+    db.rollback.assert_called_once()
 
 
 def test_check_roles_not_a_valid_role(db_session):
@@ -399,4 +476,3 @@ def test_create_user_with_conflicting_username(db_session):
 
     assert exc_info.value.status_code == status.HTTP_409_CONFLICT
     assert exc_info.value.detail == "Username already exists"
-
