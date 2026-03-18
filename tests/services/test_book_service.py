@@ -120,6 +120,26 @@ def test_get_books(db_session):
     assert isinstance(books, list)
 
 
+def test_det_books_by_author(db_session):
+    logger.debug("Test get books by author")
+    new_book = CreateBook(
+        title="The Heart Is a Lonely Hunter",
+        author="Carson McCullers",
+        price=7.50,
+        stock=8,
+    )
+    db_book = BookModel(**new_book.model_dump())
+    db_session.add(db_book)
+    db_session.commit()
+    db_session.refresh(db_book)
+
+    book = book_service.get_books(db_session, 10, 0, "Carson McCullers")
+
+    assert isinstance(book, list)
+    assert book[0].author == "Carson McCullers"
+
+
+
 def test_patch_books(db_session):
     logger.debug("Test patch book")
     new_book = CreateBook(

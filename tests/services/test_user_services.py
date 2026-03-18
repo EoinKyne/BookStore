@@ -3,7 +3,6 @@ import uuid
 
 import pytest
 from fastapi import HTTPException, status
-from uuid import UUID
 
 from BookStore.app.auth.auth import get_password_hash, verify_password
 from BookStore.app.models.model import Role as UserRole

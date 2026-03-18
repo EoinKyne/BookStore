@@ -1,7 +1,8 @@
 import uuid
 from typing import List
-
-from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column, Numeric
+from decimal import Decimal
+from datetime import datetime
+from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column, Numeric, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,7 +30,7 @@ class Book(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String, nullable=False)
     author: Mapped[str] = mapped_column(String, nullable=False)
-    price: Mapped[float] = mapped_column(Float, nullable=False)
+    price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
     stock: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
@@ -89,9 +90,9 @@ class Cart(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
-    session_id: Mapped[str] = mapped_column(String, nullable=True)
+    session_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
 
-    items = relationship("CartItem", back_populates="cart")
+    items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
 
 
 class CartItem(Base):
@@ -110,8 +111,10 @@ class Order(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
+    checkout_session_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checkout_sessions.id"))
     status: Mapped[str] = mapped_column(String)
-    total_price: Mapped[float] = mapped_column(Numeric)
+    total_price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
+    items = relationship("OrderItem", back_populates="orders", cascade="all, delete-orphan")
 
 
 class OrderItem(Base):
@@ -120,5 +123,20 @@ class OrderItem(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     order_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("orders.id"))
     book_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
-    price: Mapped[float] = mapped_column(Numeric)
+    price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer)
+
+    orders = relationship("Order", back_populates="items")
+
+
+class CheckoutSession(Base):
+    __tablename__ = "checkout_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    cart_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cart.id"))
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
+    status: Mapped[str] = mapped_column(String)
+    total_price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
+    payment_provider: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    cart = relationship("Cart")
