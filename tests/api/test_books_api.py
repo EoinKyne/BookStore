@@ -21,7 +21,7 @@ def test_create_book_admin(api_request_admin):
     body = response.json()
     assert body["title"] == "To Kill a Mockingbird"
     assert body["author"] == "Harper Lee"
-    assert body["price"] == 10.00
+    assert body["price"] == '10.00'
 
 
 def test_get_books_admin(api_request_admin):
@@ -60,7 +60,7 @@ def test_update_book_with_new_details_admin(api_request_admin):
     body = response.json()
     assert body["title"] == "The Lord of the Rings"
     assert body["author"] == "J.R.R. Tolkien"
-    assert body["price"] == 17.99
+    assert body["price"] == '17.99'
     assert body["stock"] == 6
 
 
@@ -124,7 +124,7 @@ def test_update_of_book_title_author(api_request_admin):
     body = response.json()
     assert body["title"] == "Lord of the Flies"
     assert body["author"] == "William Golding"
-    assert body["price"] == 7.99
+    assert body["price"] == '7.99'
     assert body["stock"] == 6
 
 
@@ -149,7 +149,7 @@ def test_update_of_book_prices_stock(api_request_admin):
     body = response.json()
     assert body["title"] == "Animal Farm"
     assert body["author"] == "George Orwell"
-    assert body["price"] == 18.99
+    assert body["price"] == '18.99'
     assert body["stock"] == 19
 
 
@@ -248,7 +248,7 @@ def test_create_book_contributor(api_request_contributor):
     body = response.json()
     assert body["title"] == "Atonement"
     assert body["author"] == "Ian McEwan"
-    assert body["price"] == 5.99
+    assert body["price"] == '5.99'
 
 
 def test_get_books_contributor(api_request_contributor):
@@ -304,7 +304,7 @@ def test_update_book_with_new_details_contributor(api_request_contributor):
     body = response.json()
     assert body["title"] == "Mrs. Dalloway"
     assert body["author"] == "Virginia Woolf"
-    assert body["price"] == 11.99
+    assert body["price"] == '11.99'
     assert body["stock"] == 11
 
 
@@ -329,7 +329,7 @@ def test_update_of_book_title_author_contributor(api_request_contributor):
     body = response.json()
     assert body["title"] == "Invisible Man"
     assert body["author"] == "Ralph Ellison"
-    assert body["price"] == 6.00
+    assert body["price"] == '6.00'
     assert body["stock"] == 4
 
 
@@ -354,7 +354,7 @@ def test_update_of_book_prices_stock_contributor(api_request_contributor):
     body = response.json()
     assert body["title"] == "How to catch sharks"
     assert body["author"] == "Robert Shaw"
-    assert body["price"] == 18.99
+    assert body["price"] == '18.99'
     assert body["stock"] == 19
 
 

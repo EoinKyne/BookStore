@@ -11,6 +11,7 @@ from BookStore.app.database.database import SessionLocal
 from BookStore.app.routes import auth_routes
 from BookStore.app.routes import books
 from BookStore.app.routes import users
+from BookStore.app.routes import cart
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ app = FastAPI(title="Bookstore", lifespan=lifespan)
 app.include_router(books.router, prefix="/books", tags=["Books"])
 app.include_router(auth_routes.router)
 app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(cart.router, prefix="/cart", tags=["Cart"])
 
 
 @app.exception_handler(Exception)
