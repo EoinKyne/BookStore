@@ -46,7 +46,11 @@ def seed_roles(db: Session):
         )
         db.add(contributor_role)
     else:
-        contributor_role.permissions = list(permission_objs.values())
+        contributor_role.permissions=[
+            permission_objs["book:create"],
+            permission_objs["book:update"],
+            permission_objs["book:delete"]
+        ]
 
     db.commit()
 
