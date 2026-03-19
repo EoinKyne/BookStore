@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -13,7 +14,7 @@ from BookStore.app.schemas.patch_user import UpdatePass, UpdateIsActiveUser
 logger = logging.getLogger(__name__)
 
 
-def get_user_or_404(db: Session, user_id: int) -> UserModel:
+def get_user_or_404(db: Session, user_id: uuid.UUID) -> UserModel:
     logger.debug("Get user by user id")
     user = db.get(UserModel, user_id)
 
@@ -37,14 +38,14 @@ def get_username_or_404(db: Session, username: str) -> UserModel:
     return user
 
 
-def delete_user(db: Session, user_id: int):
+def delete_user(db: Session, user_id: uuid.UUID):
     logger.debug("Delete user")
     user = get_user_or_404(db, user_id)
 
     if user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive users cannot be deleted"
+            detail="Active users cannot be deleted"
         )
 
     try:
@@ -62,7 +63,7 @@ def update_is_active_field(user: UserModel, data: UpdateIsActiveUser) -> UserMod
     return user
 
 
-def deactivate_user(db: Session, user_id: int, data: UpdateIsActiveUser) -> UserModel:
+def deactivate_user(db: Session, user_id: uuid.UUID, data: UpdateIsActiveUser) -> UserModel:
     logger.debug("Deactivate user")
     user = get_user_or_404(db, user_id)
 
@@ -81,7 +82,7 @@ def deactivate_user(db: Session, user_id: int, data: UpdateIsActiveUser) -> User
     return user
 
 
-def activate_user(db: Session, user_id: int, data: UpdateIsActiveUser) -> UserModel:
+def activate_user(db: Session, user_id: uuid.UUID, data: UpdateIsActiveUser) -> UserModel:
     logger.debug("Activate user")
     user = get_user_or_404(db, user_id)
 
@@ -100,7 +101,7 @@ def activate_user(db: Session, user_id: int, data: UpdateIsActiveUser) -> UserMo
     return user
 
 
-def update_credentials(db: Session, user_id: int, data: UpdatePass) -> UserModel:
+def update_credentials(db: Session, user_id: uuid.UUID, data: UpdatePass) -> UserModel:
     logger.debug("Update credentials")
     user = get_user_or_404(db, user_id)
 
