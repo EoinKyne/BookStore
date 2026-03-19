@@ -63,9 +63,8 @@ def test_get_users(api_request_admin):
 
 
 def test_get_users_invalid_permissions(api_request_contributor):
-    logger.info("Test get all users with invalid permissions")
+    logger.debug("Test get all users with invalid permissions")
     response = api_request_contributor.get("/users")
-    logger.info(response.json())
     assert response.status == 403
 
 

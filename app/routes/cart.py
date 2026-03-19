@@ -8,7 +8,6 @@ from BookStore.app.dependencies.db_dependencies import get_db
 from BookStore.app.schemas.cart import AddCartItem, CheckoutResponse
 from BookStore.app.services import cart_service
 from BookStore.app.services import checkout_service
-from BookStore.app.models.model import Cart
 
 router = APIRouter()
 

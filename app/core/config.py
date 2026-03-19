@@ -1,8 +1,7 @@
 import logging
 import os
-from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
-    logger.info(SettingsConfigDict(env_file=".env"))
+
+    CART_ITEM_TTL_MINUTES: int = 15
+
     model_config = SettingsConfigDict(env_file=".env")
     logger.info(model_config)
     @property
@@ -27,3 +28,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings(_env_file=os.getenv("ENV_FILE", ".env"))
+logger.info(f"loaded settings with db host: {settings.POSTGRES_HOST}")
