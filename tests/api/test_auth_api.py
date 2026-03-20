@@ -10,7 +10,7 @@ def test_login_form(api_request_not_authorized):
         "/auth/login/form",
         form={
             "username": "admin",
-            "password": "admin123",
+            "password": "test_pass_1",
         }
     )
     assert login.status == 200
@@ -25,7 +25,7 @@ def test_login_form_with_invalid_user(api_request_not_authorized):
         "/auth/login/form",
         form={
             "username": "notadmin",
-            "password": "admin123",
+            "password": "test_pass_1",
         }
     )
     assert login.status == 401

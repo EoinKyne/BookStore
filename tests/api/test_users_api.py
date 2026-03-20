@@ -10,7 +10,7 @@ def test_create_user(api_request_admin):
         data={
             "roles": ["Contributor"],
             "username": "contributor1",
-            "password": "contribone123",
+            "password": "test_contrib_pass",
             "is_active": True,
         }
     )
@@ -39,7 +39,7 @@ def test_create_user_with_unavailable_username(api_request_admin):
         data={
             "roles": ["Contributor"],
             "username": "admin",
-            "password": "admin1234",
+            "password": "test_pass_12",
             "is_active": True,
         }
     )
@@ -225,7 +225,7 @@ def test_update_pass_for_user(api_request_admin):
     response = api_request_admin.patch(
         f"/users/credentials/{user_id}",
         data={
-            "password": "admin1234"
+            "password": "test_pass_12"
         }
     )
 
@@ -233,7 +233,7 @@ def test_update_pass_for_user(api_request_admin):
     user_id = create_response.json()["id"]
     api_request_admin.patch(f"/users/credentials/{user_id}",
                             data={
-                                     "password": "admin123"
+                                     "password": "test_pass_1"
                                  })
 
 
@@ -248,7 +248,7 @@ def test_update_pass_for_user_unauthorized(api_request_admin, api_request_not_au
     response = api_request_not_authorized.patch(
         f"/users/credentials/{user_id}",
         data={
-            "password": "admin1234"
+            "password": "test_pass_12"
         }
     )
 
