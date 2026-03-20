@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     CART_ITEM_TTL_MINUTES: int = 15
 
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str
+
     model_config = SettingsConfigDict(env_file=".env")
     logger.info(model_config)
     @property

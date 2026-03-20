@@ -111,7 +111,7 @@ def api_request_admin(playwright) -> APIRequestContext:
         "/auth/login/form",
         form={
             "username": "admin",
-            "password": "admin123",
+            "password": "test_pass_1",
         },
     )
     token = login.json()["access_token"]
@@ -149,7 +149,7 @@ def add_contributor_user_for_test():
         result = db.execute(stmt).scalars().unique().one_or_none()
 
         if not result:
-            hash_pwd = get_password_hash("contribone123")
+            hash_pwd = get_password_hash("test_contrib_pass")
             roles = (
                 db.query(UserRole).filter(UserRole.name == "Contributor").first()
             )
@@ -175,7 +175,7 @@ def api_request_contributor(playwright, add_contributor_user_for_test) -> APIReq
         "/auth/login/form",
         form={
             "username": "bookcontributor",
-            "password": "contribone123",
+            "password": "test_contrib_pass",
         },
     )
     token = login.json()["access_token"]

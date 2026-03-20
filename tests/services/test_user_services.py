@@ -24,7 +24,7 @@ def test_get_user_returns_user(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests1",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
     db_session.add(test_user)
@@ -55,7 +55,7 @@ def test_get_user_by_username(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests2",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
     db_session.add(test_user)
@@ -86,7 +86,7 @@ def test_delete_user_400_if_is_active_true(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests3",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
     db_session.add(test_user)
@@ -109,7 +109,7 @@ def test_deactivate_user_if_is_active_false(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests4",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=False,
     )
 
@@ -134,7 +134,7 @@ def test_deactivate_user(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests5",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -179,7 +179,7 @@ def test_activate_user_if_is_active_true(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests6",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -204,7 +204,7 @@ def test_activate_user_if_is_active_false(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests7",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=False,
     )
 
@@ -248,7 +248,7 @@ def test_update_is_active_field(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests8",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -274,7 +274,7 @@ def test_update_credentials(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests9",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -283,7 +283,7 @@ def test_update_credentials(db_session):
     db_session.refresh(test_user)
 
     user = db_session.query(UserModel).filter(UserModel.username == "adminunittests9").first()
-    data = UpdatePass(password="admin1234")
+    data = UpdatePass(password="test_pass_12")
 
     result = user_service.update_credentials(db_session, user.id, data)
 
@@ -300,7 +300,7 @@ def test_delete_user(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests10",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=False,
     )
 
@@ -343,7 +343,7 @@ def test_update_credentials_inactive_user(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests10",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=False,
     )
 
@@ -352,7 +352,7 @@ def test_update_credentials_inactive_user(db_session):
     db_session.refresh(test_user)
 
     user = db_session.query(UserModel).filter(UserModel.username == "adminunittests10").first()
-    data = UpdatePass(password="admin1234")
+    data = UpdatePass(password="test_pass_12")
 
     with pytest.raises(HTTPException) as exc_info:
         user_service.update_credentials(db_session, user.id, data)
@@ -368,7 +368,7 @@ def test_update_credentials_user_integrity_error(mocker):
     user.is_active = True
 
     mocker.patch("BookStore.app.services.user_service.get_user_or_404", return_value=user)
-    credentials = UpdatePass(password="admin1234")
+    credentials = UpdatePass(password="test_pass_12")
 
     db.commit.side_effect = IntegrityError("stmt", "param", "orig")
 
@@ -385,7 +385,7 @@ def test_check_roles_not_a_valid_role(db_session):
     test_user = CreateUser(
         roles=["Notavalidrole"],
         username="adminunittests11",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -402,7 +402,7 @@ def test_check_roles_valid_role(db_session):
     test_user = CreateUser(
         roles=["Contributor"],
         username="adminunittests11",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -418,7 +418,7 @@ def test_check_roles_valid_multiple_roles(db_session):
     test_user = CreateUser(
         roles=["Administrator", "Contributor"],
         username="adminunittests11",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -434,7 +434,7 @@ def test_create_user(db_session):
     test_user = CreateUser(
         roles=["Contributor"],
         username="adminunittests12",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
@@ -456,7 +456,7 @@ def test_create_user_with_conflicting_username(db_session):
     test_user = UserModel(
         roles=[roles],
         username="adminunittests13",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=False,
     )
 
@@ -467,7 +467,7 @@ def test_create_user_with_conflicting_username(db_session):
     conflict_user = CreateUser(
         roles=["Contributor"],
         username="adminunittests13",
-        password=get_password_hash("admin123"),
+        password=get_password_hash("test_pass_1"),
         is_active=True,
     )
 
