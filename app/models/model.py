@@ -1,8 +1,9 @@
 import uuid
-from typing import List
-from decimal import Decimal
 from datetime import datetime
-from sqlalchemy import Integer, Float, String, Boolean, ForeignKey, Table, Column, Numeric, DateTime, func
+from decimal import Decimal
+from typing import List
+
+from sqlalchemy import Integer, String, Boolean, ForeignKey, Table, Column, Numeric, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -102,6 +103,7 @@ class CartItem(Base):
     cart_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("cart.id"))
     book_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("books.id"))
     quantity: Mapped[int] = mapped_column(Integer)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     cart = relationship("Cart", back_populates="items")
 

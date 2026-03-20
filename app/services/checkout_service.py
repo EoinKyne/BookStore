@@ -1,15 +1,14 @@
 import logging
-import uuid
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import update
-from decimal import Decimal
-from BookStore.app.models.model import Cart as CartModel
-from BookStore.app.models.model import Order as OrderModel
-from BookStore.app.models.model import Book as BookModel
-from BookStore.app.models.model import OrderItem as OrderItemModel
-from BookStore.app.models.model import CheckoutSession as CheckoutSessionModel
 
+from BookStore.app.models.model import Book as BookModel
+from BookStore.app.models.model import Cart as CartModel
+from BookStore.app.models.model import CheckoutSession as CheckoutSessionModel
+from BookStore.app.models.model import Order as OrderModel
+from BookStore.app.models.model import OrderItem as OrderItemModel
+from BookStore.app.services.cart_service import remove_expired_items
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +25,13 @@ def create_checkout_session(db: Session, sess_id: str):
     if not cart.items:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Cart is empty")
+
+    expired_items = remove_expired_items(cart)
+
+    if expired_items:
+        db.commit()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Some items expired. Please review your cart")
 
     total = 0
 

@@ -39,7 +39,7 @@ def test_cart_generates_session_if_missing(api_request_contributor, api_request_
     uuid.UUID(session_id)
 
 
-def test_cart_resuse_session(api_request_contributor, api_request_not_authorized):
+def test_cart_reuse_session(api_request_contributor, api_request_not_authorized):
     logger.debug("Test cart reuses session")
     book = api_request_contributor.post(
         "books",

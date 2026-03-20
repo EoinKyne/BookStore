@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-from BookStore.app.schemas.role_response_schema import RoleResponse
 from uuid import UUID
+
+from pydantic import BaseModel
+
+from BookStore.app.schemas.role_response_schema import RoleResponse
 
 
 class UserResponse(BaseModel):

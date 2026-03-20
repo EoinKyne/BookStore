@@ -1,15 +1,14 @@
+import logging
 import uuid
+from datetime import timedelta
 
 import pytest
-import logging
-from uuid import UUID
-from fastapi import Request, HTTPException, status
+from fastapi import HTTPException, status
+
+from BookStore.app.models.model import Book as BookModel
 from BookStore.app.models.model import Cart as CartModel
 from BookStore.app.models.model import CartItem as CartItemModel
-from BookStore.app.models.model import Book as BookModel
-from BookStore.app.schemas.create_book import CreateBook
 from BookStore.app.services import cart_service
-
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +73,8 @@ def test_add_item_to_cart(db_session):
         id=uuid.uuid4(),
         cart_id=cart.id,
         book_id=db_book.id,
-        quantity=1
+        quantity=1,
+        expires_at=cart_service.calculate_expiry()
     )
 
     db_session.add(test_item)
@@ -208,3 +208,101 @@ def test_add_item_to_cart_with_stock_of_zero(db_session):
     assert exc_info.value.detail == "Out of stock"
 
 
+def test_remove_expired_items(db_session):
+    logger.debug("Test remove expired items")
+
+    new_book = BookModel(
+        title="Their Eyes Were Watching God",
+        author=" Zora Neale Hurston",
+        price=9.50,
+        stock=11,
+    )
+
+    db_session.add(new_book)
+    db_session.commit()
+    db_session.refresh(new_book)
+
+    test_cart = CartModel(
+        id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        session_id=uuid.uuid4(),
+    )
+
+    db_session.add(test_cart)
+    db_session.commit()
+    db_session.refresh(test_cart)
+
+    db_book = db_session.query(BookModel).filter(BookModel.title == new_book.title).first()
+    cart = db_session.query(CartModel).filter(CartModel.id == test_cart.id).first()
+
+    test_item = CartItemModel(
+        id=uuid.uuid4(),
+        cart_id=cart.id,
+        book_id=db_book.id,
+        quantity=1,
+        expires_at=(cart_service.calculate_expiry() - timedelta(minutes=20))
+    )
+
+    db_session.add(test_item)
+    db_session.commit()
+    db_session.refresh(test_item)
+
+    expired_items = cart_service.remove_expired_items(test_cart)
+
+    cart_expired_removed = db_session.query(CartModel).filter(CartModel.id == test_cart.id).first()
+
+    assert len(expired_items) == 1
+    assert len(cart_expired_removed.items) == 0
+
+
+def test_get_cart_with_expired_items(db_session):
+    logger.debug("Test get cart with expired items")
+
+    new_book = BookModel(
+        title="Their Eyes Were Watching God",
+        author=" Zora Neale Hurston",
+        price=9.50,
+        stock=11,
+    )
+
+    db_session.add(new_book)
+    db_session.commit()
+    db_session.refresh(new_book)
+
+    test_cart = CartModel(
+        id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        session_id=uuid.uuid4(),
+    )
+
+    db_session.add(test_cart)
+    db_session.commit()
+    db_session.refresh(test_cart)
+
+    db_book = db_session.query(BookModel).filter(BookModel.title == new_book.title).first()
+    cart = db_session.query(CartModel).filter(CartModel.id == test_cart.id).first()
+
+    test_item = CartItemModel(
+        id=uuid.uuid4(),
+        cart_id=cart.id,
+        book_id=db_book.id,
+        quantity=1,
+        expires_at=(cart_service.calculate_expiry() - timedelta(minutes=20))
+    )
+
+    db_session.add(test_item)
+    db_session.commit()
+    db_session.refresh(test_item)
+
+    cart_expired_items_removed = cart_service.get_cart(db_session, test_cart.id)
+
+    assert len(cart_expired_items_removed.items) == 0
+
+
+def test_get_cart_not_found(db_session):
+    logger.debug("Test get cart not found")
+
+    with pytest.raises(ValueError) as exc_info:
+        cart = cart_service.get_cart(db_session, uuid.uuid4())
+
+    assert str(exc_info.value) == "Cart not found"

@@ -1,11 +1,14 @@
-import uuid
 import logging
-from fastapi import Request, HTTPException, status
+import uuid
+from datetime import datetime, timedelta
+
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+
+from BookStore.app.core.config import settings
+from BookStore.app.models.model import Book as BookModel
 from BookStore.app.models.model import Cart as CartModel
 from BookStore.app.models.model import CartItem as CartItemModel
-from BookStore.app.models.model import Book as BookModel
-
 
 logger = logging.getLogger(__name__)
 
@@ -40,14 +43,52 @@ def add_item(db: Session, cart: CartModel, book_id: uuid, quantity: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Out of stock")
 
+    cart = get_cart(db, cart_id=cart.id)
+
     item = (db.query(CartItemModel).filter(CartItemModel.cart_id == cart.id,
                                            CartItemModel.book_id == book_id)).first()
 
     if item:
         item.quantity += quantity
+        item.expires_at = refresh_expiry(item)
     else:
-        item = CartItemModel(cart_id=cart.id, book_id=book_id, quantity=quantity)
+        item = CartItemModel(cart_id=cart.id, book_id=book_id, quantity=quantity, expires_at=calculate_expiry())
         db.add(item)
 
     db.commit()
     return item
+
+
+def remove_expired_items(cart: CartModel) -> list[CartItemModel]:
+    logger.debug("Removed expired items")
+    now = datetime.utcnow()
+
+    expired_items = [item for item in cart.items if item.expires_at <= now]
+
+    for item in expired_items:
+        cart.items.remove(item)
+
+    return expired_items
+
+
+def get_cart(db: Session, cart_id: uuid.UUID) -> CartModel:
+    cart = db.get(CartModel, cart_id)
+
+    if not cart:
+        raise ValueError("Cart not found")
+
+    expired_items = remove_expired_items(cart)
+
+    if expired_items:
+        db.commit()
+
+    return cart
+
+
+def refresh_expiry(item: CartItemModel, minutes: int = 15):
+    item.expires_at = datetime.utcnow() + timedelta(minutes=minutes)
+    return item.expires_at
+
+
+def calculate_expiry():
+    return datetime.utcnow() + timedelta(minutes=settings.CART_ITEM_TTL_MINUTES)
